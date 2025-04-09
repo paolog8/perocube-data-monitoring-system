@@ -57,6 +57,19 @@ CREATE TABLE mpp_tracking_channel (
     PRIMARY KEY (board, channel)
 );
 
+CREATE TABLE temperature_sensor (
+    temperature_sensor_id UUID PRIMARY KEY,
+    date_installed DATE,
+    location VARCHAR(255)
+);
+
+CREATE TABLE irradiance_sensor (
+    irradiance_sensor_id UUID PRIMARY KEY,
+    date_installed DATE,
+    location VARCHAR(255),
+    installation_angle INTEGER
+);
+
 CREATE TABLE measurement_connection_event (
     solar_cell_id UUID,
     pixel VARCHAR(255),
@@ -72,19 +85,6 @@ CREATE TABLE measurement_connection_event (
     FOREIGN KEY (tracking_channel_board, tracking_channel_channel) REFERENCES mpp_tracking_channel(board, channel),
     FOREIGN KEY (temperature_sensor_id) REFERENCES temperature_sensor(temperature_sensor_id),
     FOREIGN KEY (irradiance_sensor_id) REFERENCES irradiance_sensor(irradiance_sensor_id)
-);
-
-CREATE TABLE temperature_sensor (
-    temperature_sensor_id UUID PRIMARY KEY,
-    date_installed DATE,
-    location VARCHAR(255)
-);
-
-CREATE TABLE irradiance_sensor (
-    irradiance_sensor_id UUID PRIMARY KEY,
-    date_installed DATE,
-    location VARCHAR(255),
-    installation_angle INTEGER
 );
 
 CREATE TABLE scientist_performed_experiment (

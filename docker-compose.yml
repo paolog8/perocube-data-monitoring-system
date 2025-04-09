@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  # TimescaleDB (PostgreSQL) service
+  postgres:
+    image: timescale/timescaledb:latest-pg15
+    container_name: perocube-postgres
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/scripts:/scripts
+      - ./db/sql:/sql
+      - ./db/sql/schema:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+    driver: local
