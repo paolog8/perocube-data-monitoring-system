@@ -1,0 +1,63 @@
+# Perocube Data Monitoring System Configuration
+
+# Database connection settings
+database:
+  host: localhost
+  port: 5432
+  dbname: perocube
+  user: postgres
+  password: ""
+  sslmode: disable
+
+# Data ingestion settings
+ingestion:
+  # LabVIEW connector settings
+  labview:
+    host: 0.0.0.0
+    port: 5000
+    buffer_size: 4096
+    connection_limit: 5
+    reconnect_attempts: 3
+    reconnect_delay: 5  # seconds
+  
+  # Historical data upload settings
+  historical:
+    batch_size: 1000
+    process_limit: 4  # number of parallel processing threads
+
+# Data processing settings
+processing:
+  # Data validation settings
+  validation:
+    strict_mode: false
+    allowed_timestamp_deviation: 60  # seconds
+    
+  # Data transformation settings
+  transformation:
+    temperature:
+      unit: celsius
+    irradiance:
+      conversion_factor: 0.1  # example factor for raw to irradiance conversion
+    power:
+      voltage_range: [0, 1.2]  # valid voltage range
+      current_range: [0, 0.1]  # valid current range
+
+# API settings
+api:
+  host: 0.0.0.0
+  port: 8000
+  debug: true
+  cors_origins:
+    - http://localhost:3000
+    - http://localhost:8080
+  rate_limit: 100  # requests per minute
+  timeout: 30  # seconds
+  
+# Monitoring settings
+monitoring:
+  metrics_port: 9090
+  health_check_interval: 60  # seconds
+  system:
+    cpu_threshold: 80  # percentage
+    memory_threshold: 80  # percentage
+    disk_threshold: 90  # percentage

@@ -1,0 +1,127 @@
+
+erDiagram
+    SOLAR_CELL_DEVICE{
+        id nomad_id
+        string technology
+        string form-factor
+        string experiment
+        string owner
+        string producer
+        date date-produced
+        date date-encapsulated
+        string encapsulation
+        float area
+        float initial-pce
+    }
+
+
+    SOLAR_CELL_PIXEL{
+        id solar_cell_id
+        string pixel
+        float active-area
+    }
+
+    MPP_TRACKING_CHANNEL{
+        int board
+        int channel
+        string address
+        string COM-port
+        float current-limit
+    }
+
+    MEASUREMENT_CONNECTION_EVENT {
+        id solar_cell_id
+        id pixel_id
+        id tracking_channel
+        id temperature_sensor
+        id irradiance_sensor
+        string mppt_mode
+        string mppt_polarity
+        timestamp connection-datetime
+    }
+
+    SOLAR_CELL_DEVICE only one -- zero or more MEASUREMENT_CONNECTION_EVENT: ""
+    SOLAR_CELL_PIXEL zero or one -- zero or one MEASUREMENT_CONNECTION_EVENT: ""
+    MEASUREMENT_CONNECTION_EVENT only one -- only one MPP_TRACKING_CHANNEL: ""
+    MEASUREMENT_CONNECTION_EVENT zero or more -- zero or one TEMPERATURE_SENSOR: ""
+    MEASUREMENT_CONNECTION_EVENT zero or more -- zero or one IRRADIANCE_SENSOR: ""
+    
+    MPP_MEASUREMENT{
+        timestamp timestamp
+        float current
+        float voltage
+        float power
+        id tracking-channel
+    }
+
+    MPP_MEASUREMENT zero or more -- only one MPP_TRACKING_CHANNEL: ""
+    
+    TEMPERATURE_SENSOR{
+        id temperature-sensor-id
+        date date-installed
+        string location
+    }
+
+    IRRADIANCE_SENSOR{
+        id irradiance-sensor-id
+        date date-installed
+        string location
+        int installation-angle
+    }
+    IRRADIANCE_SENSOR zero or many -- zero or one IRRADIANCE_MEASUREMENT: ""
+
+    IRRADIANCE_MEASUREMENT{
+        timestamp timestamp
+        int raw-reading
+        float irradiance
+        id irradiance-sensor
+    }
+
+    TEMPERATURE_MEASUREMENT{
+        timestamp timestamp
+        float temperature
+        id temperature-sensor
+    }
+    
+    TEMPERATURE_SENSOR zero or many -- zero or one TEMPERATURE_MEASUREMENT: ""
+
+   
+    SOLAR_CELL_DEVICE only one -- zero or more SOLAR_CELL_PIXEL : ""
+
+    SCIENTIST{
+        string name
+
+    }
+    SCIENTIST only one -- zero or many SOLAR_CELL_DEVICE:"owns"
+    SCIENTIST only one -- zero or many SOLAR_CELL_DEVICE:"produces"
+
+    EXPERIMENT{
+        string name
+        date start-date
+        date end-date
+    }
+
+    PROJECT{
+        string name
+    }
+
+    SCIENTIST_PERFORMED_EXPERIMENT{
+        string scientist-name
+        string experiment-name
+    }
+    SCIENTIST one or many -- zero or many SCIENTIST_PERFORMED_EXPERIMENT: ""
+    EXPERIMENT one or many -- one or many SCIENTIST_PERFORMED_EXPERIMENT: ""
+    
+    EXPERIMENT_CONTRIBUTED_PROJECT{
+        string experiment-name
+        string project-name
+    }
+    EXPERIMENT one or many -- zero or many EXPERIMENT_CONTRIBUTED_PROJECT: ""
+    PROJECT one or many -- zero or many EXPERIMENT_CONTRIBUTED_PROJECT: ""
+
+    SCIENTIST_MEMBER_PROJECT{
+        string scientist-name
+        string project-name
+    }
+    SCIENTIST one or many -- zero or many SCIENTIST_MEMBER_PROJECT: ""
+    PROJECT one or many -- zero or many SCIENTIST_MEMBER_PROJECT: ""

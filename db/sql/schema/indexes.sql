@@ -1,0 +1,9 @@
+--Indexes
+
+CREATE INDEX idx_solar_cell_device_owner ON solar_cell_device(owner_id);
+CREATE INDEX idx_solar_cell_device_producer ON solar_cell_device(producer_id);
+CREATE INDEX idx_solar_cell_device_experiment ON solar_cell_device(experiment_id);
+CREATE INDEX idx_measurement_connection_event_temp_sensor ON measurement_connection_event(temperature_sensor_id);
+CREATE INDEX idx_measurement_connection_event_irr_sensor ON measurement_connection_event(irradiance_sensor_id);
+CREATE INDEX idx_temperature_measurement_sensor ON temperature_measurement(temperature_sensor_id);
+CREATE INDEX idx_irradiance_measurement_sensor ON irradiance_measurement(irradiance_sensor_id);
