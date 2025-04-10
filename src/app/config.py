@@ -10,8 +10,13 @@ import yaml
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
+from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
+
+# Load environment variables from .env file
+dotenv_path = Path(__file__).resolve().parent.parent.parent / '.env'
+load_dotenv(dotenv_path)
 
 class Config:
     """
@@ -19,6 +24,7 @@ class Config:
     
     This class loads configuration from a YAML file and provides access to
     configuration values through attribute access or dictionary-like access.
+    Environment variables take precedence over YAML config values.
     """
     
     def __init__(self, config_file: Optional[str] = None):
@@ -39,6 +45,7 @@ class Config:
             config_file = str(project_root / 'config' / 'app_config.yaml')
             
         self.load_config(config_file)
+        self._apply_environment_overrides()
     
     def load_config(self, config_file: str) -> bool:
         """
@@ -62,6 +69,35 @@ class Config:
         except Exception as e:
             logger.error(f"Error loading configuration: {e}")
             return False
+    
+    def _apply_environment_overrides(self):
+        """
+        Apply environment variable overrides to the configuration.
+        
+        Environment variables take precedence over configuration values.
+        Looks for specific environment variables that map to configuration settings.
+        """
+        # Database configuration overrides
+        if 'database' not in self._config:
+            self._config['database'] = {}
+            
+        # Override database settings from environment variables if they exist
+        db_settings = {
+            'host': os.getenv('DB_HOST'),
+            'port': os.getenv('DB_PORT'),
+            'dbname': os.getenv('DB_NAME'),
+            'user': os.getenv('DB_USER'),
+            'password': os.getenv('DB_PASSWORD')
+        }
+        
+        # Only override if the environment variable is set
+        for key, value in db_settings.items():
+            if value is not None:
+                if key == 'port' and value.isdigit():
+                    self._config['database'][key] = int(value)
+                else:
+                    self._config['database'][key] = value
+                logger.debug(f"Override config from environment: database.{key}")
     
     def get(self, key: str, default: Any = None) -> Any:
         """
