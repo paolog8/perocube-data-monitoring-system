@@ -6,60 +6,60 @@ A PostgreSQL+TimescaleDB system for monitoring perocube data at PVcomB. This sys
 
 ```
 perocube-data-monitoring-system/
-├── config/                      # Configuration files
-│   ├── app_config.yaml          # Application configuration
-│   └── logging_config.yaml      # Logging configuration
-├── db/                          # Database-related files
-│   ├── config/                  # Database configuration
-│   │   └── timescaledb.conf     # TimescaleDB configuration
-│   ├── migrations/              # Database migration scripts
-│   │   └── V1__initial_schema.sql  # Initial schema migration
-│   ├── scripts/                 # Database utility scripts
-│   │   ├── backup_db.sh         # Database backup script
-│   │   └── init_db.sh           # Database initialization script
-│   └── sql/                     # SQL scripts
-│       ├── functions/           # Database functions
-│       ├── queries/             # Common queries
-│       └── schema/              # Schema definition
-│           ├── init.sql         # Database creation
-│           ├── tables.sql       # Table definitions
-│           └── indexes.sql      # Index definitions
-├── docs/                        # Documentation
-│   ├── architecture/            # Architecture documentation
-│   └── data-models/             # Data models documentation
-│       └── logical-data-model.mmd  # Logical data model
-├── logs/                        # Log files (created at runtime)
-├── notebooks/                   # Jupyter notebooks
-│   ├── analysis/                # Data analysis notebooks
-│   └── data_upload/             # Data upload notebooks
-│       ├── Upload_MPP_data.ipynb    # MPP data upload notebook
-│       └── Upload_Temp_Irr_data.ipynb  # Temperature and irradiance data upload notebook
-├── sample_data/                 # Sample data for testing
-│   └── datasets/                # Organized sample datasets
-├── src/                         # Source code
-│   ├── api/                     # API layer
-│   │   ├── __init__.py          
-│   │   ├── models.py            # API data models
-│   │   └── routes.py            # API endpoints
-│   ├── app/                     # Application layer
+├── config/
+│   ├── app_config.yaml
+│   └── logging_config.yaml
+├── db/
+│   ├── config/
+│   │   └── timescaledb.conf
+│   ├── migrations/
+│   │   └── V1__initial_schema.sql
+│   ├── scripts/
+│   │   ├── backup_db.sh
+│   │   └── init_db.sh
+│   └── sql/
+│       ├── functions/
+│       ├── queries/
+│       └── schema/              
+│           ├── init.sql         # Database initialization
+│           ├── tables.sql
+│           └── indexes.sql
+├── docs/
+│   ├── architecture/
+│   └── data-models/
+│       └── logical-data-model.mmd
+├── logs/                        # Created at runtime
+├── notebooks/
+│   ├── analysis/
+│   └── data_upload/
+│       ├── Upload_MPP_data.ipynb
+│       └── Upload_Temp_Irr_data.ipynb
+├── sample_data/
+│   └── datasets/
+├── src/
+│   ├── api/
 │   │   ├── __init__.py
-│   │   ├── config.py            # Configuration handling
-│   │   └── main.py              # Main application entry point
-│   ├── data_processing/         # Data processing modules
+│   │   ├── models.py
+│   │   └── routes.py
+│   ├── app/
 │   │   ├── __init__.py
-│   │   ├── transformers.py      # Data transformation utilities
-│   │   └── validators.py        # Data validation utilities
-│   └── ingestion/               # Data ingestion modules
+│   │   ├── config.py
+│   │   └── main.py
+│   ├── data_processing/
+│   │   ├── __init__.py
+│   │   ├── transformers.py
+│   │   └── validators.py
+│   └── ingestion/
 │       ├── __init__.py
-│       ├── ingest_data.py       # General data ingestion utilities
-│       ├── labview_connector.py # LabVIEW connector for real-time data
-│       └── upload_historical_data.py  # Historical data upload script
-├── tests/                       # Test directory
-│   ├── integration/             # Integration tests
-│   └── unit/                    # Unit tests
-├── Dockerfile                   # Docker configuration
-├── README.md                    # This file
-└── requirements.txt             # Python dependencies
+│       ├── ingest_data.py
+│       ├── labview_connector.py         # Connector for real-time data collection
+│       └── upload_historical_data.py
+├── tests/
+│   ├── integration/
+│   └── unit/
+├── Dockerfile
+├── README.md
+└── requirements.txt
 ```
 
 ## Setup
@@ -78,12 +78,12 @@ perocube-data-monitoring-system/
    cd perocube-data-monitoring-system
    ```
 
-2. Install Python dependencies:
+2. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Initialize the database:
+3. Initialize database:
    ```bash
    chmod +x db/scripts/init_db.sh
    ./db/scripts/init_db.sh
@@ -91,23 +91,19 @@ perocube-data-monitoring-system/
 
 ## Usage
 
-### Starting the API Server
+### API Server
 
 ```bash
 python -m src.app.main api
 ```
 
-This will start the FastAPI server that provides access to the data through a RESTful API.
-
-### Starting the LabVIEW Connector
+### LabVIEW Data Collection
 
 ```bash
 python -m src.app.main labview
 ```
 
-This will start a TCP server that listens for data from LabVIEW and stores it in the database.
-
-### Uploading Historical Data
+### Historical Data Upload
 
 ```bash
 python -m src.ingestion.upload_historical_data --data-dir /path/to/data --data-type mpp --board 1 --channel 1
@@ -115,27 +111,27 @@ python -m src.ingestion.upload_historical_data --data-dir /path/to/data --data-t
 
 ## API Documentation
 
-Once the API server is running, you can access the Swagger UI at `http://localhost:8000/docs` for interactive API documentation.
+The Swagger UI is available at `http://localhost:8000/docs`.
 
 Key endpoints:
-- `/measurements/mpp` - Get MPP measurements
-- `/measurements/temperature` - Get temperature measurements
-- `/measurements/irradiance` - Get irradiance measurements
-- `/statistics/mpp` - Get MPP statistics
-- `/statistics/temperature` - Get temperature statistics
-- `/statistics/irradiance` - Get irradiance statistics
+- `/measurements/mpp`
+- `/measurements/temperature`
+- `/measurements/irradiance`
+- `/statistics/mpp`
+- `/statistics/temperature`
+- `/statistics/irradiance`
 
 ## Database Structure
 
-The database is structured with regular PostgreSQL tables for metadata and TimescaleDB hypertables for time-series data. Key tables include:
+The database uses regular PostgreSQL tables for metadata and TimescaleDB hypertables for time-series data:
 
-- `scientist` - Information about scientists
-- `experiment` - Information about experiments
-- `project` - Information about projects
-- `solar_cell_device` - Information about solar cell devices
-- `mpp_measurement` (hypertable) - MPP tracking data
-- `temperature_measurement` (hypertable) - Temperature data
-- `irradiance_measurement` (hypertable) - Irradiance data
+- `scientist`
+- `experiment`
+- `project`
+- `solar_cell_device`
+- `mpp_measurement` (hypertable)
+- `temperature_measurement` (hypertable)
+- `irradiance_measurement` (hypertable)
 
 ## Configuration
 
