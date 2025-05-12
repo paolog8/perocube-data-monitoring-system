@@ -19,39 +19,39 @@ function show_help() {
 case "$1" in
     start)
         echo "Starting PostgreSQL/TimescaleDB container..."
-        docker-compose up -d
+        docker compose up -d
         ;;
     stop)
         echo "Stopping container..."
-        docker-compose down
+        docker compose down
         ;;
     restart)
         echo "Restarting container..."
-        docker-compose restart
+        docker compose restart
         ;;
     status)
         echo "Container status:"
-        docker-compose ps
+        docker compose ps
         ;;
     logs)
-        docker-compose logs -f
+        docker compose logs -f
         ;;
     psql)
-        docker-compose exec postgres psql -U postgres
+        docker compose exec postgres psql -U postgres
         ;;
     init)
         echo "Running initialization script inside container..."
-        docker-compose exec postgres bash /scripts/init_db.sh
+        docker compose exec postgres bash /scripts/init_db.sh
         ;;
     backup)
         echo "Running backup script inside container..."
-        docker-compose exec postgres bash /scripts/backup_db.sh
+        docker compose exec postgres bash /scripts/backup_db.sh
         ;;
     clean)
         echo "WARNING: This will remove all containers and volumes, including all database data!"
         read -p "Are you sure you want to proceed? (y/N): " confirm
         if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
-            docker-compose down -v
+            docker compose down -v
             echo "Containers and volumes removed."
         else
             echo "Operation cancelled."
