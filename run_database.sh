@@ -37,15 +37,15 @@ case "$1" in
         docker compose logs -f
         ;;
     psql)
-        docker compose exec postgres psql -U postgres
+        docker compose exec timescaledb psql -U postgres
         ;;
     init)
         echo "Running initialization script inside container..."
-        docker compose exec postgres bash /scripts/init_db.sh
+        docker compose exec timescaledb bash /scripts/init_db.sh
         ;;
     backup)
         echo "Running backup script inside container..."
-        docker compose exec postgres bash /scripts/backup_db.sh
+        docker compose exec timescaledb bash /scripts/backup_db.sh
         ;;
     clean)
         echo "WARNING: This will remove all containers and volumes, including all database data!"
