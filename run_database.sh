@@ -14,6 +14,7 @@ function show_help() {
     echo "  init     - Run the init_db script inside the container"
     echo "  backup   - Run the backup script inside the container"
     echo "  clean    - Remove containers and volumes (WARNING: DESTROYS ALL DATA)"
+    echo "  reset    - Clean, start, and initialize the database (WARNING: DESTROYS ALL DATA)"
 }
 
 case "$1" in
@@ -53,6 +54,20 @@ case "$1" in
         if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
             docker compose down -v
             echo "Containers and volumes removed."
+        else
+            echo "Operation cancelled."
+        fi
+        ;;
+    reset)
+        echo "WARNING: This will remove all containers and volumes, then recreate and initialize the database!"
+        read -p "Are you sure you want to proceed? (y/N): " confirm
+        if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
+            docker compose down -v
+            docker compose up -d
+            echo "Waiting for database to start..."
+            sleep 10
+            docker compose exec timescaledb bash /scripts/init_db.sh
+            echo "Database reset complete."
         else
             echo "Operation cancelled."
         fi
