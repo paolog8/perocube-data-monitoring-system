@@ -84,7 +84,10 @@ CREATE TABLE irradiance_sensor (
     irradiance_sensor_id UUID PRIMARY KEY,
     date_installed DATE,
     location VARCHAR(255),
-    installation_angle INTEGER
+    installation_angle INTEGER,
+    sensor_identifier VARCHAR(255),
+    channel INTEGER,
+    UNIQUE (sensor_identifier, channel)
 );
 
 CREATE TABLE scientist_performed_experiment (
