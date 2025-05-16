@@ -60,14 +60,19 @@ CREATE TABLE mpp_tracking_channel (
 CREATE TABLE temperature_sensor (
     temperature_sensor_id UUID PRIMARY KEY,
     date_installed DATE,
-    location VARCHAR(255)
+    location VARCHAR(255),
+    sensor_identifier VARCHAR(255),
+    UNIQUE (sensor_identifier)
 );
 
 CREATE TABLE irradiance_sensor (
     irradiance_sensor_id UUID PRIMARY KEY,
     date_installed DATE,
     location VARCHAR(255),
-    installation_angle INTEGER
+    installation_angle INTEGER,
+    sensor_identifier VARCHAR(255),
+    channel INTEGER,
+    UNIQUE (sensor_identifier, channel)
 );
 
 CREATE TABLE measurement_connection_event (
