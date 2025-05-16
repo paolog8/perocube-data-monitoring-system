@@ -65,7 +65,7 @@ case "$1" in
             docker compose down -v
             docker compose up -d
             echo "Waiting for database to start..."
-            sleep 10
+            sleep 5
             docker compose exec timescaledb bash /scripts/init_db.sh
             echo "Database reset complete."
         else

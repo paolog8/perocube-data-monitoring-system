@@ -3,7 +3,8 @@
 CREATE TABLE scientist (
     scientist_id UUID PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    UNIQUE (name)
+    -- Add other scientist attributes here if needed
+    UNIQUE (name) -- Consider adding this to ensure name uniqueness if required
 );
 
 CREATE TABLE experiment (
@@ -11,18 +12,19 @@ CREATE TABLE experiment (
     name VARCHAR(255) NOT NULL,
     start_date DATE,
     end_date DATE,
+    -- Add other experiment attributes here if needed
     UNIQUE (name)    
 );
 
 CREATE TABLE project (
     project_id UUID PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    -- Add other project attributes here if needed
     UNIQUE (name)
 );
 
 CREATE TABLE solar_cell_device (
-    name VARCHAR(255) PRIMARY KEY,
-    nomad_id UUID UNIQUE,  -- Preserved as UNIQUE but not PRIMARY KEY
+    nomad_id UUID PRIMARY KEY,
     technology VARCHAR(255),
     form_factor VARCHAR(255),
     experiment_id UUID,
@@ -39,11 +41,11 @@ CREATE TABLE solar_cell_device (
 );
 
 CREATE TABLE solar_cell_pixel (
-    solar_cell_id VARCHAR(255),  -- References device name, not UUID
+    solar_cell_id UUID,
     pixel VARCHAR(255),
     active_area FLOAT,
     PRIMARY KEY (solar_cell_id, pixel),
-    FOREIGN KEY (solar_cell_id) REFERENCES solar_cell_device(name)
+    FOREIGN KEY (solar_cell_id) REFERENCES solar_cell_device(nomad_id)
 );
 
 CREATE TABLE mpp_tracking_channel (
@@ -55,26 +57,8 @@ CREATE TABLE mpp_tracking_channel (
     PRIMARY KEY (board, channel)
 );
 
-CREATE TABLE temperature_sensor (
-    temperature_sensor_id UUID PRIMARY KEY,
-    date_installed DATE,
-    location VARCHAR(255),
-    sensor_identifier VARCHAR(255),  -- Added from tables.sql
-    UNIQUE (sensor_identifier)       -- Added from tables.sql
-);
-
-CREATE TABLE irradiance_sensor (
-    irradiance_sensor_id UUID PRIMARY KEY,
-    date_installed DATE,
-    location VARCHAR(255),
-    installation_angle INTEGER,
-    sensor_identifier VARCHAR(255),
-    channel INTEGER,
-    UNIQUE (sensor_identifier, channel)
-);
-
 CREATE TABLE measurement_connection_event (
-    solar_cell_id VARCHAR(255),  -- Changed to match solar_cell_device.name
+    solar_cell_id UUID,
     pixel VARCHAR(255),
     tracking_channel_board INTEGER,
     tracking_channel_channel INTEGER,
@@ -88,6 +72,22 @@ CREATE TABLE measurement_connection_event (
     FOREIGN KEY (tracking_channel_board, tracking_channel_channel) REFERENCES mpp_tracking_channel(board, channel),
     FOREIGN KEY (temperature_sensor_id) REFERENCES temperature_sensor(temperature_sensor_id),
     FOREIGN KEY (irradiance_sensor_id) REFERENCES irradiance_sensor(irradiance_sensor_id)
+);
+
+CREATE TABLE temperature_sensor (
+    temperature_sensor_id UUID PRIMARY KEY,
+    date_installed DATE,
+    location VARCHAR(255)
+);
+
+CREATE TABLE irradiance_sensor (
+    irradiance_sensor_id UUID PRIMARY KEY,
+    date_installed DATE,
+    location VARCHAR(255),
+    installation_angle INTEGER,
+    sensor_identifier VARCHAR(255),
+    channel INTEGER,
+    UNIQUE (sensor_identifier, channel)
 );
 
 CREATE TABLE scientist_performed_experiment (

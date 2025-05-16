@@ -26,21 +26,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Create tables
-echo "Creating tables..."
-psql -U "$DB_USER" -d "$DB_NAME" -f "${SQL_DIR}/schema/tables.sql"
+# Create tables and indexes
+echo "Creating tables and indexes..."
+psql -U "$DB_USER" -d "$DB_NAME" -f "${SQL_DIR}/schema/schema.sql"
 
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to create tables."
-    exit 1
-fi
-
-# Create indexes
-echo "Creating indexes..."
-psql -U "$DB_USER" -d "$DB_NAME" -f "${SQL_DIR}/schema/indexes.sql"
-
-if [ $? -ne 0 ]; then
-    echo "Error: Failed to create indexes."
+    echo "Error: Failed to create tables and indexes."
     exit 1
 fi
 

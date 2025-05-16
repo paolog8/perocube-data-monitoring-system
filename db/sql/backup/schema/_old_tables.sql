@@ -24,7 +24,8 @@ CREATE TABLE project (
 );
 
 CREATE TABLE solar_cell_device (
-    nomad_id UUID PRIMARY KEY,
+    name VARCHAR(255) PRIMARY KEY,
+    nomad_id UUID UNIQUE,
     technology VARCHAR(255),
     form_factor VARCHAR(255),
     experiment_id UUID,
@@ -41,11 +42,11 @@ CREATE TABLE solar_cell_device (
 );
 
 CREATE TABLE solar_cell_pixel (
-    solar_cell_id UUID,
+    solar_cell_id VARCHAR(255),
     pixel VARCHAR(255),
     active_area FLOAT,
     PRIMARY KEY (solar_cell_id, pixel),
-    FOREIGN KEY (solar_cell_id) REFERENCES solar_cell_device(nomad_id)
+    FOREIGN KEY (solar_cell_id) REFERENCES solar_cell_device(name)
 );
 
 CREATE TABLE mpp_tracking_channel (
