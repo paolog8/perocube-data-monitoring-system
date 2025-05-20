@@ -83,6 +83,7 @@ CREATE TABLE measurement_connection_event (
     mppt_mode VARCHAR(255),
     mppt_polarity VARCHAR(255),
     connection_datetime TIMESTAMP WITH TIME ZONE,
+    event_type VARCHAR(255) NOT NULL CHECK (event_type IN ('CONNECTED', 'DISCONNECTED')),
     PRIMARY KEY (solar_cell_id, pixel, connection_datetime),
     FOREIGN KEY (solar_cell_id, pixel) REFERENCES solar_cell_pixel(solar_cell_id, pixel),
     FOREIGN KEY (tracking_channel_board, tracking_channel_channel) REFERENCES mpp_tracking_channel(board, channel),
