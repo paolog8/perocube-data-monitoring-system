@@ -32,7 +32,7 @@ services:
 
   # JupyterHub service
   jupyterhub:
-    image: jupyter/datascience-notebook:latest
+    image: jupyter/minimal-notebook:latest
     container_name: perocube-jupyter
     user: root
     environment:
