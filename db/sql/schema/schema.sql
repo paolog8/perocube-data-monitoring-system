@@ -74,19 +74,19 @@ CREATE TABLE irradiance_sensor (
 );
 
 CREATE TABLE measurement_connection_event (
-    solar_cell_id VARCHAR(255),  -- Changed to match solar_cell_device.name
-    pixel VARCHAR(255),
+    solar_cell_id VARCHAR(255) NOT NULL,  -- Changed to match solar_cell_device.name, part of new PK
+    pixel VARCHAR(255) DEFAULT 'No pixel',
     tracking_channel_board INTEGER,
     tracking_channel_channel INTEGER,
     temperature_sensor_id UUID,
     irradiance_sensor_id UUID,
     mppt_mode VARCHAR(255),
     mppt_polarity VARCHAR(255),
-    connection_datetime TIMESTAMP WITH TIME ZONE,
+    connection_datetime TIMESTAMP WITH TIME ZONE NOT NULL, -- Part of new PK
     event_type VARCHAR(255) NOT NULL CHECK (event_type IN ('CONNECTED', 'DISCONNECTED')),
-    PRIMARY KEY (solar_cell_id, pixel, connection_datetime),
+    PRIMARY KEY (solar_cell_id, pixel, connection_datetime, event_type),
     FOREIGN KEY (solar_cell_id, pixel) REFERENCES solar_cell_pixel(solar_cell_id, pixel),
-    FOREIGN KEY (tracking_channel_board, tracking_channel_channel) REFERENCES mpp_tracking_channel(board, channel),
+    FOREIGN KEY (tracking_channel_board, tracking_channel_channel) REFERENCES mpp_tracking_channel(board, channel), 
     FOREIGN KEY (temperature_sensor_id) REFERENCES temperature_sensor(temperature_sensor_id),
     FOREIGN KEY (irradiance_sensor_id) REFERENCES irradiance_sensor(irradiance_sensor_id)
 );
