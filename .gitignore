@@ -91,3 +91,4 @@ docs/_build/
 # Custom
 # Allow tracking of required data files (if any)
 !sample_data/datasets/PeroCube-sample-data/**/required_file.txt
+*.zip
