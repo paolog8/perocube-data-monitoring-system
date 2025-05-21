@@ -30,8 +30,35 @@ services:
     networks:
       - perocube-network
 
+  # JupyterHub service
+  jupyterhub:
+    image: jupyter/datascience-notebook:latest
+    container_name: perocube-jupyter
+    user: root
+    environment:
+      - JUPYTER_TOKEN=${JUPYTER_TOKEN:-jupytertoken}  # Set this in .env file
+      - POSTGRES_HOST=timescaledb
+      - POSTGRES_DB=${DB_NAME:-perocube}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_PORT=${DB_PORT:-5432}
+    ports:
+      - "8888:8888"
+    volumes:
+      - jupyter-data:/home/jovyan/work
+      - ./notebooks:/home/jovyan/notebooks
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    restart: unless-stopped
+    command: start-notebook.sh --NotebookApp.token=${JUPYTER_TOKEN:-jupytertoken}
+    networks:
+      - perocube-network
+
 volumes:
   postgres-data:
+    driver: local
+  jupyter-data:
     driver: local
 
 networks:
