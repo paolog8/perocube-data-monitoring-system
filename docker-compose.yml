@@ -32,7 +32,7 @@ services:
 
   # JupyterHub service
   jupyterhub:
-    image: jupyter/minimal-notebook:latest
+    image: jupyter/datascience-notebook:latest
     container_name: perocube-jupyter
     user: root
     environment:
@@ -47,6 +47,7 @@ services:
     volumes:
       - jupyter-data:/home/jovyan/work
       - ./notebooks:/home/jovyan/notebooks
+      - ./sample_data:/home/jovyan/sample_data
     depends_on:
       timescaledb:
         condition: service_healthy
