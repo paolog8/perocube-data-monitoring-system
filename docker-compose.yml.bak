@@ -1,0 +1,67 @@
+services:
+  # TimescaleDB (PostgreSQL) service
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: perocube-postgres
+    ports:
+      - "${DB_PORT}:5432"
+    environment:
+      - POSTGRES_DB=${DB_NAME:-perocube}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/scripts:/scripts
+      - ./db/sql:/sql
+      - ./db/sql/schema:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-perocube}"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
+    networks:
+      - perocube-network
+
+  # JupyterHub service
+  jupyterhub:
+    image: jupyter/datascience-notebook:latest
+    container_name: perocube-jupyter
+    user: root
+    environment:
+      - JUPYTER_TOKEN=${JUPYTER_TOKEN:-jupytertoken}  # Set this in .env file
+      - POSTGRES_HOST=timescaledb
+      - POSTGRES_DB=${DB_NAME:-perocube}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_PORT=${DB_PORT:-5432}
+    ports:
+      - "8888:8888"
+    volumes:
+      - jupyter-data:/home/jovyan/work
+      - ./notebooks:/home/jovyan/notebooks
+      - ./sample_data:/home/jovyan/sample_data
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    restart: unless-stopped
+    command: start-notebook.sh --NotebookApp.token=${JUPYTER_TOKEN:-jupytertoken}
+    networks:
+      - perocube-network
+
+volumes:
+  postgres-data:
+    driver: local
+  jupyter-data:
+    driver: local
+
+networks:
+  perocube-network:
+    driver: bridge
