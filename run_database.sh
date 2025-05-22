@@ -5,16 +5,24 @@
 function show_help() {
     echo "Usage: $0 [command]"
     echo "Commands:"
+    echo "Database Control:"
     echo "  start    - Start the PostgreSQL/TimescaleDB container"
     echo "  stop     - Stop the container"
     echo "  restart  - Restart the container"
     echo "  status   - Check container status"
     echo "  logs     - View container logs"
     echo "  psql     - Open psql CLI in the container"
-    echo "  init     - Run the init_db script inside the container"
+    
+    echo -e "\nMigrations (Flyway):"
+    echo "  migrate  - Apply pending database migrations"
+    echo "  info     - Show current migration status"
+    echo "  validate - Validate applied migrations"
+    echo "  repair   - Repair migration history table"
+    
+    echo -e "\nMaintenance:"
     echo "  backup   - Run the backup script inside the container"
     echo "  clean    - Remove containers and volumes (WARNING: DESTROYS ALL DATA)"
-    echo "  reset    - Clean, start, and initialize the database (WARNING: DESTROYS ALL DATA)"
+    echo "  reset    - Clean, start, and initialize with migrations (WARNING: DESTROYS ALL DATA)"
 }
 
 case "$1" in
@@ -40,9 +48,9 @@ case "$1" in
     psql)
         docker compose exec timescaledb psql -U postgres
         ;;
-    init)
-        echo "Running initialization script inside container..."
-        docker compose exec timescaledb bash /scripts/init_db.sh
+    migrate|info|validate|repair)
+        echo "Running Flyway $1..."
+        ./db/scripts/migrate.sh $1
         ;;
     backup)
         echo "Running backup script inside container..."
@@ -66,7 +74,8 @@ case "$1" in
             docker compose up -d
             echo "Waiting for database to start..."
             sleep 5
-            docker compose exec timescaledb bash /scripts/init_db.sh
+            echo "Applying all migrations..."
+            ./db/scripts/migrate.sh migrate
             echo "Database reset complete."
         else
             echo "Operation cancelled."
