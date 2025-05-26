@@ -56,7 +56,8 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_PORT=${DB_PORT:-5432}
     ports:
-      - "8888:8888"
+      - "8888:8888"      # Jupyter port
+      - "8866:8866"      # Voilà port
     volumes:
       - jupyter-data:/home/jovyan/work
       - ./notebooks:/home/jovyan/notebooks
@@ -65,9 +66,15 @@ services:
       timescaledb:
         condition: service_healthy
     restart: unless-stopped
-    command: start-notebook.sh --NotebookApp.token=${JUPYTER_TOKEN:-jupytertoken}
+    command: >
+      bash -c "pip install voila ipywidgets &&
+              start-notebook.sh --NotebookApp.token=${JUPYTER_TOKEN:-jupytertoken}"
     networks:
       - perocube-network
+      
+  # Voilà dashboards will run through the Jupyter service
+  # You can access any notebook as a dashboard via:
+  # http://localhost:8888/voila/render/notebooks/YourNotebook.ipynb
 
 volumes:
   postgres-data:
