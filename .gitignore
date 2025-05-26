@@ -92,3 +92,8 @@ docs/_build/
 # Allow tracking of required data files (if any)
 !sample_data/datasets/PeroCube-sample-data/**/required_file.txt
 *.zip
+mock_UI.html
+mock_UI_screenshots/Screenshot from 2025-05-23 09-39-05.png
+mock_UI_screenshots/Screenshot from 2025-05-23 09-55-29.png
+mock_UI_screenshots/Screenshot from 2025-05-23 09-55-36.png
+mock_UI_screenshots/Screenshot from 2025-05-23 09-56-04.png
