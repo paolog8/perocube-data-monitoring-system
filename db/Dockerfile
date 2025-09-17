@@ -11,14 +11,14 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
 
 # Create a non-root user
-RUN useradd -r -g postgres postgres_user
+RUN adduser -S -G postgres postgres_user
 
 # Copy TimescaleDB configuration
-COPY ./db/config/timescaledb.conf /etc/postgresql/postgresql.conf
+COPY config/timescaledb.conf /etc/postgresql/postgresql.conf
 
 # Copy initialization scripts
-COPY ./db/sql/schema/ /docker-entrypoint-initdb.d/
-COPY ./db/migrations/ /docker-entrypoint-initdb.d/
+COPY sql/schema/ /docker-entrypoint-initdb.d/
+COPY migrations/ /docker-entrypoint-initdb.d/
 
 # Make sure the scripts run in the correct order
 RUN mv /docker-entrypoint-initdb.d/init.sql /docker-entrypoint-initdb.d/1_init.sql && \
