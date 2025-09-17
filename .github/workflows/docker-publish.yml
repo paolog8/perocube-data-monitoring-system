@@ -28,4 +28,4 @@ jobs:
         with:
           context: ./jupyter # Specifies that the Dockerfile is in the 'jupyter' directory
           push: true
-          tags: ghcr.io/YOUR-USERNAME/perocube-jupyter:latest # The full name for your image
+          tags: ghcr.io/paolog8/perocube-jupyter:latest # The full name for your image
