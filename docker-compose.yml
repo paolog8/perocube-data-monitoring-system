@@ -1,8 +1,8 @@
 services:
   # TimescaleDB (PostgreSQL) service
   timescaledb:
-    # image: timescale/timescaledb:latest-pg15
-    build: ./db
+    image: timescale/timescaledb:latest-pg15
+    #build: ./db
     container_name: perocube-postgres
     ports:
       - "${DB_PORT}:5432"
@@ -14,7 +14,8 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - ./db/scripts:/scripts
       - ./db/sql:/sql
-      # - ./db/sql/schema:/docker-entrypoint-initdb.d
+      # following line not needed when using the Dockerfile in db/
+      - ./db/sql/schema:/docker-entrypoint-initdb.d
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-perocube}"]
@@ -68,8 +69,10 @@ services:
       timescaledb:
         condition: service_healthy
     restart: unless-stopped
-    command: start-notebook.sh --NotebookApp.token=${JUPYTER_TOKEN:-jupytertoken}"
-    #>
+    command:
+      - start-notebook.sh
+      - --NotebookApp.token=${JUPYTER_TOKEN:-jupytertoken}
+      #>
       #bash -c "pip install voila ipywidgets &&
     networks:
       - perocube-network
