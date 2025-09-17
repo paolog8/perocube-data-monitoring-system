@@ -48,7 +48,8 @@ services:
   # JupyterHub service
   jupyterhub:
     # image: jupyter/datascience-notebook:latest
-    build: ./jupyter
+    #build: ./jupyter
+    image: ghcr.io/paolog8/perocube-jupyter:latest
     container_name: perocube-jupyter
     user: root
     environment:
