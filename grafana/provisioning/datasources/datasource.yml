@@ -1,9 +1,15 @@
 apiVersion: 1
 
+# Clean up any existing datasources with the same name to ensure a fresh start
+deleteDatasources:
+  - name: TimescaleDB
+    orgId: 1
+
 datasources:
   - name: TimescaleDB
     type: postgres
     access: proxy
+    uid: perocube-timescaledb
     url: timescaledb:5432
     database: perocube
     user: postgres
@@ -14,3 +20,4 @@ datasources:
       postgresVersion: 1500
       timescaledb: true
     isDefault: true
+    editable: true
