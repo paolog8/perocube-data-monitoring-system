@@ -5,8 +5,8 @@ datasources:
     type: postgres
     access: proxy
     url: timescaledb:5432
-    database: ${DB_NAME}
-    user: ${DB_USER}
+    database: perocube
+    user: postgres
     secureJsonData:
       password: ${DB_PASSWORD}
     jsonData:
