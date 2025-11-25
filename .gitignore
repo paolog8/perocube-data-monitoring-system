@@ -97,3 +97,5 @@ mock_UI_screenshots/Screenshot from 2025-05-23 09-39-05.png
 mock_UI_screenshots/Screenshot from 2025-05-23 09-55-29.png
 mock_UI_screenshots/Screenshot from 2025-05-23 09-55-36.png
 mock_UI_screenshots/Screenshot from 2025-05-23 09-56-04.png
+
+*/docker-compose.override.yml
