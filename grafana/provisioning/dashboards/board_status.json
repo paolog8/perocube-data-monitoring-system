@@ -1,0 +1,158 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": null,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "perocube-timescaledb"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "cellOptions": {
+                            "type": "color-background"
+                        },
+                        "inspect": false,
+                        "minWidth": 50
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "text": " "
+                                },
+                                "1": {
+                                    "text": " "
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "gray",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "board_number"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 16,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 1,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "perocube-timescaledb"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "refId": "A",
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
+                    },
+                    "rawSql": "SELECT\n  board_number,\n  MAX(CASE WHEN channel_number = 1 THEN is_active ELSE 0 END) AS \"1\",\n  MAX(CASE WHEN channel_number = 2 THEN is_active ELSE 0 END) AS \"2\",\n  MAX(CASE WHEN channel_number = 3 THEN is_active ELSE 0 END) AS \"3\",\n  MAX(CASE WHEN channel_number = 4 THEN is_active ELSE 0 END) AS \"4\",\n  MAX(CASE WHEN channel_number = 5 THEN is_active ELSE 0 END) AS \"5\",\n  MAX(CASE WHEN channel_number = 6 THEN is_active ELSE 0 END) AS \"6\",\n  MAX(CASE WHEN channel_number = 7 THEN is_active ELSE 0 END) AS \"7\",\n  MAX(CASE WHEN channel_number = 8 THEN is_active ELSE 0 END) AS \"8\",\n  MAX(CASE WHEN channel_number = 9 THEN is_active ELSE 0 END) AS \"9\",\n  MAX(CASE WHEN channel_number = 10 THEN is_active ELSE 0 END) AS \"10\",\n  MAX(CASE WHEN channel_number = 11 THEN is_active ELSE 0 END) AS \"11\",\n  MAX(CASE WHEN channel_number = 12 THEN is_active ELSE 0 END) AS \"12\",\n  MAX(CASE WHEN channel_number = 13 THEN is_active ELSE 0 END) AS \"13\",\n  MAX(CASE WHEN channel_number = 14 THEN is_active ELSE 0 END) AS \"14\",\n  MAX(CASE WHEN channel_number = 15 THEN is_active ELSE 0 END) AS \"15\",\n  MAX(CASE WHEN channel_number = 16 THEN is_active ELSE 0 END) AS \"16\",\n  MAX(CASE WHEN channel_number = 17 THEN is_active ELSE 0 END) AS \"17\",\n  MAX(CASE WHEN channel_number = 18 THEN is_active ELSE 0 END) AS \"18\",\n  MAX(CASE WHEN channel_number = 19 THEN is_active ELSE 0 END) AS \"19\",\n  MAX(CASE WHEN channel_number = 20 THEN is_active ELSE 0 END) AS \"20\",\n  MAX(CASE WHEN channel_number = 21 THEN is_active ELSE 0 END) AS \"21\",\n  MAX(CASE WHEN channel_number = 22 THEN is_active ELSE 0 END) AS \"22\",\n  MAX(CASE WHEN channel_number = 23 THEN is_active ELSE 0 END) AS \"23\",\n  MAX(CASE WHEN channel_number = 24 THEN is_active ELSE 0 END) AS \"24\"\nFROM get_board_connection_status($__timeTo())\nGROUP BY board_number\nORDER BY board_number"
+                }
+            ],
+            "title": "Board Connection Status (Rows: Boards, Cols: Channels)",
+            "type": "table"
+        }
+    ],
+    "refresh": "",
+    "schemaVersion": 38,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+        "list": []
+    },
+    "time": {
+        "from": "now-6h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "Board Status",
+    "uid": "board-status",
+    "version": 1,
+    "weekStart": ""
+}
