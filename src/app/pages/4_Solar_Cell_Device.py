@@ -9,6 +9,7 @@ project_root = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.app.db_utils import execute_statement, run_query
+from src.app.ui_utils import get_delete_warning_html
 
 st.set_page_config(page_title="Solar Cell Device", page_icon="☀️")
 
@@ -73,3 +74,37 @@ if df is not None:
     st.dataframe(df)
 else:
     st.error("Failed to load devices.")
+
+st.markdown("---")
+st.subheader("Delete Solar Cell Device")
+
+# Prepare options for delete
+device_options_del = {row['name']: row['name'] for index, row in df.iterrows()} if df is not None else {}
+
+with st.form("delete_device_form", enter_to_submit=False):
+    delete_name = st.selectbox("Select Device to Delete", options=[""] + list(device_options_del.keys()))
+    delete_submitted = st.form_submit_button("Delete Device")
+
+if delete_submitted and delete_name:
+    st.session_state['delete_device_name'] = delete_name
+    st.session_state['confirm_delete_device'] = True
+
+if st.session_state.get('confirm_delete_device'):
+    st.markdown(get_delete_warning_html(st.session_state['delete_device_name']), unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Yes, Delete Device"):
+            query = "DELETE FROM solar_cell_device WHERE name = %s"
+            if execute_statement(query, (st.session_state['delete_device_name'],)):
+                st.success(f"Device '{st.session_state['delete_device_name']}' deleted successfully!")
+                # Clear state
+                del st.session_state['confirm_delete_device']
+                del st.session_state['delete_device_name']
+                st.rerun()
+            else:
+                st.error("Failed to delete device. It might be referenced by other records (e.g., pixels).")
+    with col2:
+        if st.button("Cancel Delete"):
+            del st.session_state['confirm_delete_device']
+            if 'delete_device_name' in st.session_state: del st.session_state['delete_device_name']
+            st.rerun()

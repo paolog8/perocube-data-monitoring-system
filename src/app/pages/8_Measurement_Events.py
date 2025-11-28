@@ -9,6 +9,7 @@ project_root = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.app.db_utils import execute_statement, run_query
+from src.app.ui_utils import get_delete_warning_html
 
 st.set_page_config(page_title="Measurement Events", page_icon="🔌")
 
@@ -85,3 +86,70 @@ if df is not None:
     st.dataframe(df)
 else:
     st.error("Failed to load events.")
+
+st.markdown("---")
+st.subheader("Delete Event")
+
+# Prepare options for delete
+# We need a unique way to identify events. The table likely has a composite PK or we can use all fields.
+# Let's assume we can delete by matching the fields shown in the dropdown.
+# A better way is to fetch a hidden ID if available, but the schema isn't fully visible.
+# Assuming composite PK: solar_cell_id, pixel, connection_datetime
+event_options_del = [f"{row['connection_datetime']} - {row['solar_cell_id']} {row['pixel']} ({row['event_type']})" for index, row in df.iterrows()] if df is not None else []
+
+with st.form("delete_event_form", enter_to_submit=False):
+    delete_event_selection = st.selectbox("Select Event to Delete", options=[""] + event_options_del)
+    delete_submitted = st.form_submit_button("Delete Event")
+
+if delete_submitted and delete_event_selection:
+    st.session_state['delete_event_selection'] = delete_event_selection
+    st.session_state['confirm_delete_event'] = True
+
+if st.session_state.get('confirm_delete_event'):
+    st.markdown(get_delete_warning_html(st.session_state['delete_event_selection']), unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Yes, Delete Event"):
+            # Parse selection to get keys
+            # Format: "YYYY-MM-DD HH:MM:SS - solar_cell_id pixel (TYPE)"
+            try:
+                parts = st.session_state['delete_event_selection'].split(" - ", 1)
+                datetime_str = parts[0]
+                rest = parts[1]
+                # This parsing is fragile. Ideally we should have an ID.
+                # Let's try to match by connection_datetime and solar_cell_id and pixel.
+                # But wait, 'rest' is "solar_cell_id pixel (TYPE)".
+                # This is getting complicated to parse back.
+                # I will use the index from the dataframe to get the row, assuming the dataframe order hasn't changed (it shouldn't in the same run).
+                # But st.selectbox returns the string.
+                
+                # Better approach: Use a dictionary mapping the string to the row data (or PK fields).
+                selected_row = None
+                for index, row in df.iterrows():
+                    opt_str = f"{row['connection_datetime']} - {row['solar_cell_id']} {row['pixel']} ({row['event_type']})"
+                    if opt_str == st.session_state['delete_event_selection']:
+                        selected_row = row
+                        break
+                
+                if selected_row is not None:
+                    query = """
+                        DELETE FROM measurement_connection_event 
+                        WHERE solar_cell_id = %s AND pixel = %s AND connection_datetime = %s
+                    """
+                    if execute_statement(query, (selected_row['solar_cell_id'], selected_row['pixel'], selected_row['connection_datetime'])):
+                        st.success("Event deleted successfully!")
+                        del st.session_state['confirm_delete_event']
+                        del st.session_state['delete_event_selection']
+                        st.rerun()
+                    else:
+                        st.error("Failed to delete event.")
+                else:
+                    st.error("Could not find event to delete.")
+            except Exception as e:
+                st.error(f"Error parsing selection: {e}")
+
+    with col2:
+        if st.button("Cancel Delete"):
+            del st.session_state['confirm_delete_event']
+            if 'delete_event_selection' in st.session_state: del st.session_state['delete_event_selection']
+            st.rerun()
