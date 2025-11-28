@@ -18,11 +18,7 @@ services:
       - ./db/sql/schema:/docker-entrypoint-initdb.d
     restart: unless-stopped
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-perocube}",
-        ]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-perocube}" ]
       interval: 30s
       timeout: 30s
       retries: 3
@@ -101,6 +97,24 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    networks:
+      - perocube-network
+
+  # Streamlit App for Metadata Ingestion
+  streamlit:
+    build: .
+    container_name: perocube-streamlit
+    ports:
+      - "8501:8501"
+    environment:
+      - DB_HOST=timescaledb
+      - DB_NAME=${DB_NAME:-perocube}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PORT=${DB_PORT:-5432}
     depends_on:
       timescaledb:
         condition: service_healthy
