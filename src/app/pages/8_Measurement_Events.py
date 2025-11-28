@@ -27,7 +27,7 @@ irr_sensor_options = {f"{row['sensor_identifier']} (Ch {row['channel']})": row['
 
 # Form to add a new event
 st.subheader("Add New Connection Event")
-with st.form("add_event_form"):
+with st.form("add_event_form", enter_to_submit=False):
     pixel_selection = st.selectbox("Solar Cell Pixel", options=[""] + pixel_options)
     channel_selection = st.selectbox("MPP Tracking Channel", options=[""] + channel_options)
     

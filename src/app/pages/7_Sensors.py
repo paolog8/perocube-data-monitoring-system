@@ -17,7 +17,7 @@ tab1, tab2 = st.tabs(["Temperature Sensors", "Irradiance Sensors"])
 
 with tab1:
     st.subheader("Add Temperature Sensor")
-    with st.form("add_temp_sensor_form"):
+    with st.form("add_temp_sensor_form", enter_to_submit=False):
         sensor_identifier = st.text_input("Sensor Identifier")
         location = st.text_input("Location")
         date_installed = st.date_input("Date Installed", value=None)
@@ -45,7 +45,7 @@ with tab1:
 
 with tab2:
     st.subheader("Add Irradiance Sensor")
-    with st.form("add_irr_sensor_form"):
+    with st.form("add_irr_sensor_form", enter_to_submit=False):
         sensor_identifier = st.text_input("Sensor Identifier")
         channel = st.number_input("Channel", min_value=0, step=1)
         location = st.text_input("Location")

@@ -15,7 +15,7 @@ st.header("Manage Projects")
 
 # Form to add a new project
 st.subheader("Add New Project")
-with st.form("add_project_form"):
+with st.form("add_project_form", enter_to_submit=False):
     name = st.text_input("Name")
     submitted = st.form_submit_button("Add Project")
     

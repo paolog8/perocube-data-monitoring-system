@@ -15,7 +15,7 @@ st.header("Manage Scientists")
 
 # Form to add a new scientist
 st.subheader("Add New Scientist")
-with st.form("add_scientist_form"):
+with st.form("add_scientist_form", enter_to_submit=False):
     name = st.text_input("Name")
     submitted = st.form_submit_button("Add Scientist")
     

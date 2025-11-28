@@ -25,7 +25,7 @@ tab1, tab2, tab3 = st.tabs(["Scientist-Experiment", "Experiment-Project", "Scien
 
 with tab1:
     st.subheader("Scientist Performed Experiment")
-    with st.form("sci_exp_form"):
+    with st.form("sci_exp_form", enter_to_submit=False):
         sci_name = st.selectbox("Scientist", options=list(scientist_options.keys()), key="se_s")
         exp_name = st.selectbox("Experiment", options=list(experiment_options.keys()), key="se_e")
         submitted = st.form_submit_button("Link Scientist to Experiment")
@@ -50,7 +50,7 @@ with tab1:
 
 with tab2:
     st.subheader("Experiment Contributed to Project")
-    with st.form("exp_proj_form"):
+    with st.form("exp_proj_form", enter_to_submit=False):
         exp_name = st.selectbox("Experiment", options=list(experiment_options.keys()), key="ep_e")
         proj_name = st.selectbox("Project", options=list(project_options.keys()), key="ep_p")
         submitted = st.form_submit_button("Link Experiment to Project")
@@ -75,7 +75,7 @@ with tab2:
 
 with tab3:
     st.subheader("Scientist Member of Project")
-    with st.form("sci_proj_form"):
+    with st.form("sci_proj_form", enter_to_submit=False):
         sci_name = st.selectbox("Scientist", options=list(scientist_options.keys()), key="sp_s")
         proj_name = st.selectbox("Project", options=list(project_options.keys()), key="sp_p")
         submitted = st.form_submit_button("Link Scientist to Project")

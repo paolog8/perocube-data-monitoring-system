@@ -23,7 +23,7 @@ experiment_options = {row['name']: row['experiment_id'] for index, row in experi
 
 # Form to add a new device
 st.subheader("Add New Solar Cell Device")
-with st.form("add_device_form"):
+with st.form("add_device_form", enter_to_submit=False):
     name = st.text_input("Device Name (ID)")
     nomad_id = st.text_input("Nomad ID (UUID)", help="Optional")
     technology = st.text_input("Technology")

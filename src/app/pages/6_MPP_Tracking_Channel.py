@@ -14,7 +14,7 @@ st.header("Manage MPP Tracking Channels")
 
 # Form to add a new channel
 st.subheader("Add New Tracking Channel")
-with st.form("add_channel_form"):
+with st.form("add_channel_form", enter_to_submit=False):
     board = st.number_input("Board Number", min_value=0, step=1)
     channel = st.number_input("Channel Number", min_value=0, step=1)
     address = st.text_input("Address")

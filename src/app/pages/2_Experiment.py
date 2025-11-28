@@ -15,7 +15,7 @@ st.header("Manage Experiments")
 
 # Form to add a new experiment
 st.subheader("Add New Experiment")
-with st.form("add_experiment_form"):
+with st.form("add_experiment_form", enter_to_submit=False):
     name = st.text_input("Name")
     start_date = st.date_input("Start Date", value=None)
     end_date = st.date_input("End Date", value=None)

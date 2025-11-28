@@ -18,7 +18,7 @@ device_options = devices_df['name'].tolist() if devices_df is not None else []
 
 # Form to add a new pixel
 st.subheader("Add New Pixel")
-with st.form("add_pixel_form"):
+with st.form("add_pixel_form", enter_to_submit=False):
     solar_cell_id = st.selectbox("Solar Cell Device", options=device_options)
     pixel = st.text_input("Pixel Identifier")
     active_area = st.number_input("Active Area", min_value=0.0, format="%.4f")
