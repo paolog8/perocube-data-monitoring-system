@@ -121,6 +121,113 @@ services:
     networks:
       - perocube-network
 
+  # Cloud TimescaleDB
+  timescaledb-cloud:
+    image: timescale/timescaledb:latest-pg15
+    container_name: perocube-postgres-cloud
+    ports:
+      - "${DB_CLOUD_PORT:-5433}:5432"
+    environment:
+      - POSTGRES_DB=${DB_NAME:-perocube}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-cloud-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-perocube}" ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
+    networks:
+      - perocube-network
+
+  # Flyway for Cloud DB (App Schema)
+  flyway-cloud:
+    image: flyway/flyway:11-alpine
+    container_name: perocube-flyway-cloud
+    command: -url=jdbc:postgresql://timescaledb-cloud:5432/${DB_NAME:-perocube} -user=${DB_USER:-postgres} -password=${DB_PASSWORD} -connectRetries=60 -locations=filesystem:/flyway/sql migrate
+    volumes:
+      - ./db/migrations:/flyway/sql
+    depends_on:
+      timescaledb-cloud:
+        condition: service_healthy
+    networks:
+      - perocube-network
+
+  # SymmetricDS Edge
+  symmetricds-edge:
+    image: jumpmind/symmetricds:latest
+    container_name: perocube-symmetricds-edge
+    ports:
+      - "31415:31415"
+      - "8081:8080"
+    environment:
+      - ENGINE_NAME=edge-001
+      - DB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./symmetricds/engines/edge.properties:/opt/symmetric-ds/engines/edge-001.properties
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      symmetricds-cloud:
+        condition: service_healthy
+    networks:
+      - perocube-network
+
+  # SymmetricDS Cloud
+  symmetricds-cloud:
+    image: jumpmind/symmetricds:latest
+    container_name: perocube-symmetricds-cloud
+    ports:
+      - "31416:31415"
+    environment:
+      - ENGINE_NAME=cloud-000
+      - DB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./symmetricds/engines/cloud.properties:/opt/symmetric-ds/engines/cloud-000.properties
+    depends_on:
+      timescaledb-cloud:
+        condition: service_healthy
+      flyway-cloud:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [ "CMD-SHELL", "nc -z 127.0.0.1 31415 || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - perocube-network
+
+  # Flyway for SymmetricDS Config
+  flyway-sym-config:
+    image: flyway/flyway:11-alpine
+    container_name: perocube-flyway-sym-config
+    command:
+      - -url=jdbc:postgresql://timescaledb-cloud:5432/${DB_NAME:-perocube}
+      - -user=${DB_USER:-postgres}
+      - -password=${DB_PASSWORD}
+      - -connectRetries=60
+      - -locations=filesystem:/flyway/sym_sql
+      - -table=flyway_schema_history_sym
+      - -baselineOnMigrate=true
+      - migrate
+    volumes:
+      - ./symmetricds/sql:/flyway/sym_sql
+    depends_on:
+      symmetricds-cloud:
+        condition: service_healthy
+    networks:
+      - perocube-network
+
 volumes:
   postgres-data:
     driver: local

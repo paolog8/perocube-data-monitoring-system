@@ -53,4 +53,4 @@ ON CONFLICT (trigger_id) DO NOTHING;
 INSERT INTO sym_trigger_router 
 (trigger_id, router_id, initial_load_order, last_update_time, create_time) 
 VALUES('all_tables', 'edge_2_cloud', 100, current_timestamp, current_timestamp)
-ON CONFLICT (trigger_id, router_id) DO NOTHING;
+
