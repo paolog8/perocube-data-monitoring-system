@@ -1,0 +1,168 @@
+services:
+  # Cloud TimescaleDB
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: perocube-postgres
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    environment:
+      - POSTGRES_DB=${DB_NAME:-perocube}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-perocube}" ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+    networks:
+      - perocube-network
+
+  # Flyway for Cloud DB (App Schema)
+  flyway:
+    image: flyway/flyway:11-alpine
+    container_name: perocube-flyway
+    command: -url=jdbc:postgresql://timescaledb:5432/${DB_NAME:-perocube} -user=${DB_USER:-postgres} -password=${DB_PASSWORD} -connectRetries=60 -locations=filesystem:/flyway/sql migrate
+    volumes:
+      - ./db/migrations:/flyway/sql
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    networks:
+      - perocube-network
+
+  # SymmetricDS Cloud
+  symmetricds-cloud:
+    image: jumpmind/symmetricds:latest
+    container_name: perocube-symmetricds-cloud
+    ports:
+      - "31415:31415" # Exposed for Edge nodes
+    environment:
+      - ENGINE_NAME=cloud-000
+      - DB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./symmetricds/engines/cloud.properties:/opt/symmetric-ds/engines/cloud-000.properties
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [ "CMD-SHELL", "nc -z 127.0.0.1 31415 || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - perocube-network
+
+  # Flyway for SymmetricDS Config
+  flyway-sym-config:
+    image: flyway/flyway:11-alpine
+    container_name: perocube-flyway-sym-config
+    command:
+      - -url=jdbc:postgresql://timescaledb:5432/${DB_NAME:-perocube}
+      - -user=${DB_USER:-postgres}
+      - -password=${DB_PASSWORD}
+      - -connectRetries=60
+      - -locations=filesystem:/flyway/sym_sql
+      - -table=flyway_schema_history_sym
+      - -baselineOnMigrate=true
+      - migrate
+    volumes:
+      - ./symmetricds/sql:/flyway/sym_sql
+    depends_on:
+      symmetricds-cloud:
+        condition: service_healthy
+    networks:
+      - perocube-network
+
+  # JupyterHub service
+  jupyterhub:
+    image: ghcr.io/paolog8/perocube-jupyter:latest
+    container_name: perocube-jupyter
+    user: root
+    environment:
+      - JUPYTER_TOKEN=${JUPYTER_TOKEN:-jupytertoken}
+      - POSTGRES_HOST=timescaledb
+      - POSTGRES_DB=${DB_NAME:-perocube}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_PORT=5432
+    ports:
+      - "8888:8888"
+      - "8866:8866"
+    volumes:
+      - jupyter-data:/home/jovyan/work
+      - ./notebooks:/home/jovyan/notebooks
+      - ./sample_data:/home/jovyan/sample_data
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    restart: unless-stopped
+    command:
+      - start-notebook.sh
+      - --NotebookApp.token=${JUPYTER_TOKEN:-jupytertoken}
+    networks:
+      - perocube-network
+
+  # Grafana service
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: perocube-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+      DB_NAME: ${DB_NAME:-perocube}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: timescaledb
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    networks:
+      - perocube-network
+
+  # Streamlit App
+  streamlit:
+    build: .
+    container_name: perocube-streamlit
+    ports:
+      - "8501:8501"
+    environment:
+      - DB_HOST=timescaledb
+      - DB_NAME=${DB_NAME:-perocube}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PORT=5432
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    networks:
+      - perocube-network
+
+volumes:
+  postgres-data:
+    driver: local
+  jupyter-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+networks:
+  perocube-network:
+    driver: bridge
