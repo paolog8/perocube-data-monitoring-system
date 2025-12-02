@@ -136,24 +136,23 @@ services:
         condition: service_healthy
     networks:
       - perocube-network
-
-  # Streamlit App
-  streamlit:
-    build: .
-    container_name: perocube-streamlit
-    ports:
-      - "8501:8501"
-    environment:
-      - DB_HOST=timescaledb
-      - DB_NAME=${DB_NAME:-perocube}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_PORT=5432
-    depends_on:
-      timescaledb:
-        condition: service_healthy
-    networks:
-      - perocube-network
+  # # Streamlit App
+  # streamlit:
+  #   build: .
+  #   container_name: perocube-streamlit
+  #   ports:
+  #     - "8501:8501"
+  #   environment:
+  #     - DB_HOST=timescaledb
+  #     - DB_NAME=${DB_NAME:-perocube}
+  #     - DB_USER=${DB_USER:-postgres}
+  #     - DB_PASSWORD=${DB_PASSWORD}
+  #     - DB_PORT=5432
+  #   depends_on:
+  #     timescaledb:
+  #       condition: service_healthy
+  #   networks:
+  #     - perocube-network
 
 volumes:
   postgres-data:
