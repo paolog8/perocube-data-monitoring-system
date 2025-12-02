@@ -64,8 +64,63 @@ services:
     networks:
       - perocube-network
 
+  # JupyterHub service
+  jupyterhub:
+    image: ghcr.io/paolog8/perocube-jupyter:latest
+    container_name: perocube-jupyter
+    user: root
+    environment:
+      - JUPYTER_TOKEN=${JUPYTER_TOKEN:-jupytertoken}
+      - POSTGRES_HOST=timescaledb
+      - POSTGRES_DB=${DB_NAME:-perocube}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_PORT=5432
+    ports:
+      - "8888:8888"
+      - "8866:8866"
+    volumes:
+      - jupyter-data:/home/jovyan/work
+      - ./notebooks:/home/jovyan/notebooks
+      - ./sample_data:/home/jovyan/sample_data
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    restart: unless-stopped
+    command:
+      - start-notebook.sh
+      - --NotebookApp.token=${JUPYTER_TOKEN:-jupytertoken}
+    networks:
+      - perocube-network
+
+  # Grafana service
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: perocube-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+      DB_NAME: ${DB_NAME:-perocube}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: timescaledb
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    networks:
+      - perocube-network
+
 volumes:
   postgres-data:
+    driver: local
+  jupyter-data:
+    driver: local
+  grafana-data:
     driver: local
 
 networks:
