@@ -65,6 +65,7 @@ A Grafana dashboard is pre-configured on the Edge device to monitor synchronizat
 2.  **Login**: Default credentials are `admin` / `admin` (or as set in `.env`).
 3.  **View Dashboard**: Navigate to **Dashboards** -> **SymmetricDS Sync Stats**.
     -   **Pending Batches**: Shows the number of batches waiting to be pushed to the Cloud.
+    -   **Pending Rows**: Shows the total number of data rows waiting to be synced.
     -   **Pending Batch Details**: Lists specific batches in error or pending state.
 
 ## Production Deployment Guide
