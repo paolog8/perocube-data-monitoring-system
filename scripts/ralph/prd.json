@@ -1,0 +1,105 @@
+{
+  "project": "Perocube Data Monitoring System",
+  "branchName": "ralph/data-health-dashboard",
+  "description": "This feature adds a Grafana dashboard to monitor the health of the data collection system, providing visibility into data gaps, collection frequency, and sensor status.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create database views for dashboard queries",
+      "description": "As a developer, I need to create performant database views or functions to aggregate data for the Grafana dashboard panels so that the dashboard loads quickly and efficiently.",
+      "acceptanceCriteria": [
+        "Create a SQL view/function to calculate the last seen timestamp for each sensor.",
+        "Create a SQL view/function to count the number of measurements per sensor, per day and per week.",
+        "Create a SQL view/function to identify data gaps longer than a configurable threshold (defaulting to 5 minutes).",
+        "Ensure all new database objects are included in a new Flyway migration script.",
+        "All queries execute in under 5 seconds for a dataset spanning 30 days.",
+        "Typecheck/lint passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Provision a new Grafana dashboard",
+      "description": "As a system administrator, I want a new 'Data Health' dashboard to be automatically provisioned in Grafana so that I can immediately start monitoring the system.",
+      "acceptanceCriteria": [
+        "A new JSON file `grafana/provisioning/dashboards/data_health.json` is created.",
+        "A corresponding `dashboard.yaml` entry is added to `grafana/provisioning/dashboards/` to provision the new dashboard.",
+        "The dashboard has a title 'Data Collection Health'.",
+        "The dashboard includes variables for selecting device, sensor, and time range.",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Display the last seen timestamp for each sensor",
+      "description": "As a user, I want to see the last time each sensor sent data so that I can quickly identify if a sensor has stopped reporting.",
+      "acceptanceCriteria": [
+        "A 'Last Seen' panel is added to the dashboard.",
+        "The panel is a table that lists each sensor/device.",
+        "The table shows the timestamp of the very last data point received for that sensor.",
+        "The timestamp is displayed in a human-readable format (e.g., 'YYYY-MM-DD HH:mm:ss').",
+        "The table is sorted by the last seen timestamp in ascending order (oldest first).",
+        "Typecheck passes",
+        "Verify visually in browser"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Visualize the number of measurements over time",
+      "description": "As a user, I want to see the number of measurements per day and per week so that I can understand data volume and spot significant drops.",
+      "acceptanceCriteria": [
+        "A 'Measurement Count' panel is added to the dashboard.",
+        "The panel is a bar chart showing the total number of measurements.",
+        "A dropdown or toggle allows switching the view between 'per day' and 'per week'.",
+        "The x-axis represents time, and the y-axis represents the count of measurements.",
+        "The panel can be filtered by device/sensor.",
+        "Typecheck passes",
+        "Verify visually in browser"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Visualize data collection frequency",
+      "description": "As a user, I want to compare the actual data collection frequency against an expected frequency so that I can identify if sensors are reporting data less often than they should.",
+      "acceptanceCriteria": [
+        "A 'Collection Frequency' panel is added to the dashboard.",
+        "The panel displays the average time between consecutive measurements for each sensor over the selected time range.",
+        "The panel includes a configurable 'Expected Frequency' threshold (e.g., a line on the graph).",
+        "Sensors reporting less frequently than the threshold are highlighted.",
+        "Typecheck passes",
+        "Verify visually in browser"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Identify and visualize missing data gaps",
+      "description": "As a user, I want to see periods where data is missing for longer than a specified threshold so that I can assess the completeness of the data.",
+      "acceptanceCriteria": [
+        "A 'Data Gaps (>5 min)' panel is added to the dashboard.",
+        "The panel uses a timeline or gantt chart visualization to show gaps for each sensor.",
+        "Only gaps longer than 5 minutes are displayed.",
+        "The visualization clearly shows the start and end time of each gap.",
+        "The panel can be filtered by device/sensor.",
+        "Typecheck passes",
+        "Verify visually in browser"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
