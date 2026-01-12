@@ -69,3 +69,22 @@ Thread: (Not available in this environment)
   - Grafana template variables of type 'custom' can be used to provide simple string options for dashboard users.
   - Grafana transformations, specifically 'Filter by RefId', can be used to dynamically show/hide panel data based on template variables, allowing for flexible visualizations with multiple queries.
 ---
+## Mon 12 Jan 2026 - US-005
+Thread: (Not available in this environment)
+- **What was implemented:**
+  - Added a new view `data_health_average_frequency` to `db/migrations/V4__data_health_views.sql` to calculate the average time between consecutive measurements for each sensor.
+  - Added a new template variable called `expected_frequency` to the Grafana dashboard to set a threshold.
+  - Added a 'Collection Frequency' panel to the 'Data Collection Health' Grafana dashboard.
+  - The panel is a timeseries graph visualizing the average interval between measurements using `data_health_average_frequency`.
+  - It includes a threshold line based on the `expected_frequency` variable.
+  - The panel utilizes the existing 'device' and 'sensor' template variables for filtering.
+- **Files changed:**
+  - `scripts/ralph/prd.json` (updated `passes` for US-005)
+  - `scripts/ralph/progress.txt` (this update)
+  - `db/migrations/V4__data_health_views.sql` (modified with new view)
+  - `grafana/provisioning/dashboards/data_health.json` (modified with new template variable and panel)
+- **Learnings for future iterations:**
+  - Complex SQL queries for aggregations are best placed in database views for performance and reusability.
+  - Grafana template variables can be used in SQL queries with `CASE` statements to convert human-readable values (e.g., "5m") into numerical equivalents (e.g., 300 seconds).
+  - Grafana allows adding multiple queries to a single panel and visualizing them together, which is useful for displaying thresholds alongside actual data.
+---
