@@ -21,7 +21,74 @@
   "id": null,
   "links": [],
   "liveNow": false,
-  "panels": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "perocube-timescaledb"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "headerColor": "",
+        "columnWidth": {},
+        "showHeader": true,
+        "sortbyArgument": "0",
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Time"
+          }
+        ],
+        "frameIndex": 0,
+        "rowHeight": "auto",
+        "align": "auto",
+        "displayMode": "series",
+        "filterEnabled": false,
+        "footerOptions": {},
+        "minDynamicRowHeight": 12,
+        "overflow": "scroll",
+        "styles": [
+          {
+            "id": "time",
+            "type": "date",
+            "pattern": "time",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "unit": "time"
+          },
+          {
+            "id": "string",
+            "type": "string",
+            "pattern": "/.*/",
+            "unit": "string"
+          }
+        ],
+        "tableWith2Headers": false
+      },
+      "pluginDisplay": "Table",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "perocube-timescaledb"
+          },
+          "format": "table",
+          "group": [],
+          "legendFormat": "__auto",
+          "refId": "A",
+          "target": "SELECT\n  time AS \"Time\",\n  device_name AS \"Device Name\",\n  sensor_type AS \"Sensor Type\",\n  sensor_id AS \"Sensor ID\"\nFROM data_health_last_seen\nWHERE\n  $__timeFilter(time) AND\n  device_name IN (${device:sqlstring}) AND\n  sensor_type || ' - ' || sensor_id IN (${sensor:sqlstring})\nORDER BY time ASC"
+        }
+      ],
+      "title": "Last Seen Timestamp",
+      "type": "table"
+    }
+  ],
   "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
