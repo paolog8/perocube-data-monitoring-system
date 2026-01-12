@@ -297,9 +297,88 @@
         "calcs": []
       },
       "timeRegions": []
-    }
-    }
-    }
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "perocube-timescaledb"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "headerColor": "",
+        "columnWidth": {},
+        "showHeader": true,
+        "sortbyArgument": "0",
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Time"
+          }
+        ],
+        "frameIndex": 0,
+        "rowHeight": "auto",
+        "align": "auto",
+        "displayMode": "series",
+        "filterEnabled": false,
+        "footerOptions": {},
+        "minDynamicRowHeight": 12,
+        "overflow": "scroll",
+        "styles": [
+          {
+            "id": "time",
+            "type": "date",
+            "pattern": "time",
+            "dateFormat": "YYYY-MM-DD HH:mm:ss",
+            "unit": "time"
+          },
+          {
+            "id": "string",
+            "type": "string",
+            "pattern": "/.*/",
+            "unit": "string"
+          }
+        ],
+        "tableWith2Headers": false
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "perocube-timescaledb"
+          },
+          "format": "table",
+          "group": [],
+          "legendFormat": "__auto",
+          "refId": "A",
+          "target": "SELECT\n  gap_start AS \"Time\",\n  device_name AS \"Device Name\",\n  sensor_type AS \"Sensor Type\",\n  sensor_id AS \"Sensor ID\",\n  EXTRACT(EPOCH FROM gap_duration) / 60 AS \"Gap Duration (min)\"\nFROM get_data_gaps(INTERVAL '5 minutes', ${device:sqlstring}, split_part(${sensor:sqlstring}, ' - ', 2), split_part(${sensor:sqlstring}, ' - ', 1))\nWHERE\n  $__timeFilter(gap_start)\nORDER BY gap_start"
+        }
+      ],
+      "title": "Data Gaps (>5 min)",
+      "type": "table",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "transformations": [],
+      "legend": {
+        "displayMode": "list",
+        "placement": "bottom",
+        "calcs": []
+      },
+      "timeRegions": []
   ],
   "refresh": "",
   "schemaVersion": 38,

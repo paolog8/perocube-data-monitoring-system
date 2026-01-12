@@ -139,9 +139,13 @@ ORDER BY sensor_type, sensor_id, week;
 -- Function: get_data_gaps
 -- Identifies data gaps longer than a specified threshold for all sensor types.
 CREATE OR REPLACE FUNCTION get_data_gaps(
-    p_gap_threshold INTERVAL DEFAULT '5 minutes'
+    p_gap_threshold INTERVAL DEFAULT '5 minutes',
+    p_device_name TEXT DEFAULT NULL,
+    p_sensor_id TEXT DEFAULT NULL,
+    p_sensor_type TEXT DEFAULT NULL
 )
 RETURNS TABLE (
+    device_name TEXT,
     sensor_type TEXT,
     sensor_id TEXT,
     gap_start TIMESTAMP WITH TIME ZONE,
@@ -153,36 +157,56 @@ BEGIN
     RETURN QUERY
     WITH all_measurements AS (
         SELECT
+            sd.name AS device_name,
             'mpp_channel' AS sensor_type,
             'board_' || m.tracking_channel_board || '_channel_' || m.tracking_channel_channel AS sensor_id,
             m."timestamp" AS measurement_timestamp
         FROM
             mpp_measurement m
+        JOIN solar_cell_device sd ON m.solar_cell_device_id = sd.id
+        WHERE
+            (p_device_name IS NULL OR sd.name = p_device_name) AND
+            (p_sensor_type IS NULL OR 'mpp_channel' = p_sensor_type) AND
+            (p_sensor_id IS NULL OR 'board_' || m.tracking_channel_board || '_channel_' || m.tracking_channel_channel = p_sensor_id)
         UNION ALL
         SELECT
+            sd.name AS device_name,
             'temperature_sensor' AS sensor_type,
             temperature_sensor_id::TEXT AS sensor_id,
             tm."timestamp" AS measurement_timestamp
         FROM
             temperature_measurement tm
+        JOIN solar_cell_device sd ON tm.solar_cell_device_id = sd.id
+        WHERE
+            (p_device_name IS NULL OR sd.name = p_device_name) AND
+            (p_sensor_type IS NULL OR 'temperature_sensor' = p_sensor_type) AND
+            (p_sensor_id IS NULL OR temperature_sensor_id::TEXT = p_sensor_id)
         UNION ALL
         SELECT
+            sd.name AS device_name,
             'irradiance_sensor' AS sensor_type,
             irradiance_sensor_id::TEXT AS sensor_id,
             im."timestamp" AS measurement_timestamp
         FROM
             irradiance_measurement im
+        JOIN solar_cell_device sd ON im.solar_cell_device_id = sd.id
+        WHERE
+            (p_device_name IS NULL OR sd.name = p_device_name) AND
+            (p_sensor_type IS NULL OR 'irradiance_sensor' = p_sensor_type) AND
+            (p_sensor_id IS NULL OR irradiance_sensor_id::TEXT = p_sensor_id)
     ),
     lagged_measurements AS (
         SELECT
+            device_name,
             sensor_type,
             sensor_id,
             measurement_timestamp,
-            LAG(measurement_timestamp, 1, measurement_timestamp) OVER (PARTITION BY sensor_type, sensor_id ORDER BY measurement_timestamp) AS prev_measurement_timestamp
+            LAG(measurement_timestamp, 1, measurement_timestamp) OVER (PARTITION BY device_name, sensor_type, sensor_id ORDER BY measurement_timestamp) AS prev_measurement_timestamp
         FROM
             all_measurements
     )
     SELECT
+        lm.device_name,
         lm.sensor_type,
         lm.sensor_id,
         lm.prev_measurement_timestamp AS gap_start,
@@ -193,9 +217,12 @@ BEGIN
     WHERE
         (lm.measurement_timestamp - lm.prev_measurement_timestamp) > p_gap_threshold
     ORDER BY
+        lm.device_name,
         lm.sensor_type,
         lm.sensor_id,
         gap_start;
+END;
+$$ LANGUAGE plpgsql;
 
 -- View: data_health_average_frequency
 -- Calculates the average time between consecutive measurements for each sensor.
@@ -253,5 +280,3 @@ ORDER BY
     device_name,
     sensor_type,
     sensor_id;
-END;
-$$ LANGUAGE plpgsql;
