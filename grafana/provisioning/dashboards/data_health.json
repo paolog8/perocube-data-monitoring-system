@@ -87,6 +87,103 @@
       ],
       "title": "Last Seen Timestamp",
       "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "perocube-timescaledb"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "perocube-timescaledb"
+          },
+          "format": "time_series",
+          "group": [],
+          "legendFormat": "Daily",
+          "refId": "A",
+          "target": "SELECT\n  time AS \"time\",\n  measurement_count\nFROM data_health_daily_measurements\nWHERE\n  $__timeFilter(time) AND\n  device_name IN (${device:sqlstring}) AND\n  sensor_type || ' - ' || sensor_id IN (${sensor:sqlstring})\nORDER BY 1"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "perocube-timescaledb"
+          },
+          "format": "time_series",
+          "group": [],
+          "legendFormat": "Weekly",
+          "refId": "B",
+          "target": "SELECT\n  time AS \"time\",\n  measurement_count\nFROM data_health_weekly_measurements\nWHERE\n  $__timeFilter(time) AND\n  device_name IN (${device:sqlstring}) AND\n  sensor_type || ' - ' || sensor_id IN (${sensor:sqlstring})\nORDER BY 1"
+        }
+      ],
+      "title": "Measurement Count",
+      "type": "timeseries",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "lineInterpolation": "linear",
+            "barAlignment": 0,
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "spanNulls": false,
+            "showPoints": "auto",
+            "pointSize": 5,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "tooltip": {
+              "value": "single"
+            }
+          },
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "transformations": [
+        {
+          "id": "filterByRefId",
+          "options": {
+            "include": "/^${frequency:upper:first_letter}$/"
+          }
+        }
+      ],
+      "legend": {
+        "displayMode": "list",
+        "placement": "bottom",
+        "calcs": []
+      },
+      "timeRegions": []
+    }
     }
   ],
   "refresh": "",
@@ -132,6 +229,30 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
+      },
+      {
+        "current": {
+          "text": "Day",
+          "value": "day"
+        },
+        "name": "frequency",
+        "options": [
+          {
+            "text": "Day",
+            "value": "day"
+          },
+          {
+            "text": "Week",
+            "value": "week"
+          }
+        ],
+        "query": "day,week",
+        "refresh": 0,
+        "type": "custom",
+        "hide": 0,
+        "label": "Frequency",
+        "multi": false,
+        "includeAll": false
       }
     ]
   },

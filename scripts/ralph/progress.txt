@@ -1,6 +1,6 @@
 # Ralph Progress Log
 ## Codebase Patterns
-- The `develop` branch does not exist in this repository. Feature branches should be created from `main`.
+- Feature branches are created from `main`.
 - `docker-compose` command is not available; use `docker compose` instead.
 - Docker daemon must be running to verify database migrations.
 
@@ -51,4 +51,21 @@ Thread: (Not available in this environment)
 - **Learnings for future iterations:**
   - Grafana table panels allow extensive customization for column display, sorting, and data source querying.
   - Templating variables (like `${device:sqlstring}` and `${sensor:sqlstring}`) are crucial for dynamic dashboard filtering.
+---
+## Mon 12 Jan 2026 - US-004
+Thread: (Not available in this environment)
+- **What was implemented:**
+  - Added a new template variable called `frequency` with options 'day' and 'week' to the Grafana dashboard.
+  - Added a 'Measurement Count' panel to the 'Data Collection Health' Grafana dashboard.
+  - The panel is a timeseries bar chart displaying the count of measurements.
+  - It uses two queries, one for daily (`data_health_daily_measurements`) and one for weekly (`data_health_weekly_measurements`).
+  - A transformation is applied to filter and display data based on the selected `frequency` variable.
+  - The panel utilizes the existing 'device' and 'sensor' template variables for filtering.
+- **Files changed:**
+  - `scripts/ralph/prd.json` (updated `passes` for US-004)
+  - `scripts/ralph/progress.txt` (this update)
+  - `grafana/provisioning/dashboards/data_health.json` (modified with new template variable and panel)
+- **Learnings for future iterations:**
+  - Grafana template variables of type 'custom' can be used to provide simple string options for dashboard users.
+  - Grafana transformations, specifically 'Filter by RefId', can be used to dynamically show/hide panel data based on template variables, allowing for flexible visualizations with multiple queries.
 ---
