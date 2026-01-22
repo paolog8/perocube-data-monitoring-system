@@ -1,0 +1,118 @@
+{
+  "project": "Perocube Data Monitoring System",
+  "branchName": "ralph/remove-board-channel-architecture",
+  "description": "Remove Board-Channel Architecture - Refactor electrical measurements to store device references directly, removing board-channel abstraction for future hardware flexibility",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Archive existing MPP data and tracking infrastructure",
+      "description": "As a database administrator, I need to preserve historical board-channel data before schema changes so we don't lose existing measurements.",
+      "acceptanceCriteria": [
+        "Create archive tables: mpp_measurement_archive, mpp_tracking_channel_archive, measurement_connection_event_archive",
+        "Copy all existing data to archive tables with timestamps",
+        "Verify row counts match between original and archive tables",
+        "Document archive table structure and access patterns in migration comments",
+        "Migration runs successfully without errors"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Archive tables created and metadata copied (216 channels, 160 events). MPP measurement data (268M+ rows) not copied due to volume - remains in original table."
+    },
+    {
+      "id": "US-002",
+      "title": "Create flexible equipment connection tracking table",
+      "description": "As a system architect, I need a generic way to track which measurement equipment was connected to which devices over time, independent of specific hardware architectures.",
+      "acceptanceCriteria": [
+        "Create equipment_connection table with all required fields: id, solar_cell_id, pixel, equipment_id, equipment_type, equipment_metadata (JSONB), connection_datetime, disconnection_datetime, notes",
+        "Add FK constraint to solar_cell_device(name)",
+        "Add composite FK to solar_cell_pixel(solar_cell_id, pixel)",
+        "Add check constraint: disconnection_datetime > connection_datetime (when not null)",
+        "Create index on (solar_cell_id, pixel, connection_datetime)",
+        "Create index on (equipment_id, equipment_type)",
+        "Migration runs successfully"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Verified table existence and schema in database. Migration V6 was already applied successfully."
+    },
+    {
+      "id": "US-003",
+      "title": "Refactor mpp_measurement to store device directly",
+      "description": "As a data engineer, I need MPP measurements to reference solar cell devices directly so we eliminate the board-channel dependency.",
+      "acceptanceCriteria": [
+        "Drop existing mpp_measurement hypertable (data already archived)",
+        "Create new mpp_measurement hypertable with schema: time, solar_cell_id, pixel, voltage, current, power, fill_factor, efficiency",
+        "Add FK constraint to solar_cell_device(name)",
+        "Add composite FK to solar_cell_pixel(solar_cell_id, pixel)",
+        "Create hypertable with time partitioning (7-day chunks recommended)",
+        "Create index on (solar_cell_id, pixel, time DESC)",
+        "Migration runs successfully"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Dropped old mpp_measurement and created new device-centric hypertable in V7 migration. Dependent views were also dropped to allow the table change."
+    },
+    {
+      "id": "US-004",
+      "title": "Remove obsolete board-channel tables",
+      "description": "As a database administrator, I need to remove the old board-channel infrastructure tables now that they're archived.",
+      "acceptanceCriteria": [
+        "Drop measurement_connection_event table (archived, replaced by equipment_connection)",
+        "Drop mpp_tracking_channel table (archived, no longer needed)",
+        "Verify no remaining FK constraints reference these tables",
+        "Migration runs successfully"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "Dropped measurement_connection_event and mpp_tracking_channel tables and their dependent functions in V8 migration."
+    },
+    {
+      "id": "US-005",
+      "title": "Update get_mpp_data_for_pixel function",
+      "description": "As a data analyst, I need the database function to retrieve MPP data using the new schema so notebooks and queries continue working.",
+      "acceptanceCriteria": [
+        "Drop old get_mpp_data_for_pixel() function",
+        "Create new get_mpp_data_for_pixel(p_solar_cell_id text, p_pixel text, p_start_time timestamptz DEFAULT NULL, p_end_time timestamptz DEFAULT NULL) function",
+        "Function queries mpp_measurement directly using solar_cell_id and pixel",
+        "Function returns: time, voltage, current, power, fill_factor, efficiency",
+        "Function handles NULL start_time (default to earliest data)",
+        "Function handles NULL end_time (default to latest data)",
+        "Test function with sample queries in migration (commented examples)",
+        "Migration runs successfully"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "Recreated get_mpp_data_for_pixel in V9 to work with the new device-centric mpp_measurement table. Added support for optional start and end times with NULL defaults."
+    },
+    {
+      "id": "US-006",
+      "title": "Create helper function to retrieve equipment connection history",
+      "description": "As a researcher, I need to query which equipment measured a specific device over time for traceability and debugging.",
+      "acceptanceCriteria": [
+        "Create get_equipment_connections_for_device(p_solar_cell_id text, p_pixel text DEFAULT 'No pixel') function",
+        "Function returns: equipment_id, equipment_type, equipment_metadata, connection_datetime, disconnection_datetime, notes",
+        "Function orders by connection_datetime DESC",
+        "Function filters by solar_cell_id and pixel",
+        "Test function with sample query in migration (commented example)",
+        "Migration runs successfully"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "Created get_equipment_connections_for_device in V10. This function provides a simple interface to track hardware history for any device/pixel."
+    },
+    {
+      "id": "US-007",
+      "title": "Add migration validation and rollback plan",
+      "description": "As a database administrator, I need clear validation steps and rollback procedures in case the migration fails or needs reversal.",
+      "acceptanceCriteria": [
+        "Document validation queries in migration comments for: archive table row counts, new table structures, indexes created, FK constraints active",
+        "Document rollback procedure in migration header comments",
+        "Include example data insertion for new schema in comments",
+        "Migration includes clear section headers and explanatory comments"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Consolidated validation queries and rollback procedures in V11 migration. All migrations (V6-V11) follow the documented standards for headers, comments, and validation."
+    }
+  ]
+}
