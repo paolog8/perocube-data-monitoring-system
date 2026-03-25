@@ -181,8 +181,6 @@ services:
     image: jumpmind/symmetricds:latest
     container_name: symmetricds-hub
     environment:
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD}
       - SYM_PASSWORD=${SYM_PASSWORD}
     volumes:
       - ./symmetricds/engines/outdoor-hub.properties:/opt/symmetric-ds/engines/outdoor-hub.properties
