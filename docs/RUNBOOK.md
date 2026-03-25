@@ -19,10 +19,10 @@ Add `SYM_PASSWORD` to the `.env` files on **both** the measuring PC and the serv
 
 ```bash
 # .env (both machines)
-SYM_PASSWORD=<choose a strong password>
+SYM_PASSWORD=<choose a strong password> 
 ```
 
-Also pass `SYM_PASSWORD` through to the Flyway and SymmetricDS containers. In `docker-compose.yml` on the measuring PC, add it to the `flyway` and `symmetricds` environment blocks. On the server it is already wired into `flyway-outdoor` and `symmetricds-hub`.
+`SYM_PASSWORD` is already wired into the Flyway and SymmetricDS containers in both `docker-compose.yml` files — no further changes needed there.
 
 ### Step 1 — Create the outdoor_monitoring database (run once)
 
