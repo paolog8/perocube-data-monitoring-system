@@ -134,6 +134,62 @@ services:
     networks:
       - network
 
+  # Flyway — apply outdoor_monitoring schema (V1-V21) to the new database
+  flyway-outdoor:
+    image: flyway/flyway:11-alpine
+    container_name: flyway-outdoor
+    command: >
+      -url=jdbc:postgresql://timescaledb:5432/outdoor_monitoring
+      -user=${DB_USER:-postgres}
+      -password=${DB_PASSWORD}
+      -connectRetries=60
+      migrate
+    volumes:
+      - ./db/outdoor_migrations:/flyway/sql
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    networks:
+      - network
+
+  # Flyway — install SymmetricDS topology config into outdoor_monitoring
+  flyway-sym-config:
+    image: flyway/flyway:11-alpine
+    container_name: flyway-sym-config
+    command: >
+      -url=jdbc:postgresql://timescaledb:5432/outdoor_monitoring
+      -user=${DB_USER:-postgres}
+      -password=${DB_PASSWORD}
+      -connectRetries=60
+      -locations=filesystem:/flyway/sym_sql
+      -table=flyway_schema_history_sym
+      -baselineOnMigrate=true
+      migrate
+    volumes:
+      - ./symmetricds/sql:/flyway/sym_sql
+    depends_on:
+      flyway-outdoor:
+        condition: service_completed_successfully
+    networks:
+      - network
+
+  # SymmetricDS hub — receives one-way sync from outdoor measuring PC
+  # Served via nginx at /sync/ (no external port needed)
+  symmetricds-hub:
+    image: jumpmind/symmetricds:latest
+    container_name: symmetricds-hub
+    environment:
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./symmetricds/engines/outdoor-hub.properties:/opt/symmetric-ds/engines/outdoor-hub.properties
+    depends_on:
+      flyway-sym-config:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    networks:
+      - network
+
   # Nginx reverse proxy
   nginx:
     image: nginx:alpine
