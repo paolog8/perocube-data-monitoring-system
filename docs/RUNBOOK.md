@@ -15,6 +15,15 @@ Replace `<SERVER_HOSTNAME>` with the actual public hostname in:
 - `symmetricds/engines/outdoor-hub.properties`
 - `outdoor-data-monitoring/symmetricds/engines/monitoring-node.properties` (on the measuring PC)
 
+Add `SYM_PASSWORD` to the `.env` files on **both** the measuring PC and the server. This is the password for the dedicated `sym_user` database account used by SymmetricDS:
+
+```bash
+# .env (both machines)
+SYM_PASSWORD=<choose a strong password>
+```
+
+Also pass `SYM_PASSWORD` through to the Flyway and SymmetricDS containers. In `docker-compose.yml` on the measuring PC, add it to the `flyway` and `symmetricds` environment blocks. On the server it is already wired into `flyway-outdoor` and `symmetricds-hub`.
+
 ### Step 1 — Create the outdoor_monitoring database (run once)
 
 This only needs to be done once. If the stack is ever rebuilt from scratch, run it again before starting services.

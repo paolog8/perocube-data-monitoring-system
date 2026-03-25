@@ -134,7 +134,7 @@ services:
     networks:
       - network
 
-  # Flyway — apply outdoor_monitoring schema (V1-V21) to the new database
+  # Flyway — apply outdoor_monitoring schema (V1-V22) to the new database
   flyway-outdoor:
     image: flyway/flyway:11-alpine
     container_name: flyway-outdoor
@@ -144,6 +144,8 @@ services:
       -password=${DB_PASSWORD}
       -connectRetries=60
       migrate
+    environment:
+      - FLYWAY_PLACEHOLDERS_SYM_PASSWORD=${SYM_PASSWORD}
     volumes:
       - ./db/outdoor_migrations:/flyway/sql
     depends_on:
@@ -181,6 +183,7 @@ services:
     environment:
       - DB_USER=${DB_USER:-postgres}
       - DB_PASSWORD=${DB_PASSWORD}
+      - SYM_PASSWORD=${SYM_PASSWORD}
     volumes:
       - ./symmetricds/engines/outdoor-hub.properties:/opt/symmetric-ds/engines/outdoor-hub.properties
     depends_on:
