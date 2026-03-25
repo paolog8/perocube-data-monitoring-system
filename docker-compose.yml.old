@@ -3,7 +3,7 @@ services:
   timescaledb:
     image: timescale/timescaledb:latest-pg15
     #build: ./db
-    container_name: postgres
+    container_name: perocube-postgres
     ports:
       - "${DB_PORT}:5432"
     environment:
@@ -11,11 +11,11 @@ services:
       - POSTGRES_USER=${DB_USER:-postgres}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
-      - /nfs/qumulo-a/grafana01/postgres/data:/var/lib/postgresql/data
-      - /nfs/qumulo-a/grafana01/postgres/scripts:/scripts
-      - /nfs/qumulo-a/grafana01/postgres/sql:/sql
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/scripts:/scripts
+      - ./db/sql:/sql
       # following line not needed when using the Dockerfile in db/
-      - /nfs/qumulo-a/grafana01/postgres/schema:/docker-entrypoint-initdb.d
+      - ./db/sql/schema:/docker-entrypoint-initdb.d
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-perocube}" ]
@@ -30,27 +30,27 @@ services:
         reservations:
           memory: 1G
     networks:
-      - network
+      - perocube-network
 
   # Flyway service for database migrations
   flyway:
     image: flyway/flyway:11-alpine
-    container_name: flyway
+    container_name: perocube-flyway
     command: -url=jdbc:postgresql://timescaledb:5432/${DB_NAME:-perocube} -user=${DB_USER:-postgres} -password=${DB_PASSWORD} -connectRetries=60 migrate
     volumes:
-      - /nfs/qumulo-a/grafana01/flyway/migrations:/flyway/sql
+      - ./db/migrations:/flyway/sql
     depends_on:
       timescaledb:
         condition: service_healthy
     networks:
-      - network
+      - perocube-network
 
   # JupyterHub service
   jupyterhub:
     # image: jupyter/datascience-notebook:latest
     #build: ./jupyter
     image: ghcr.io/paolog8/perocube-jupyter:latest
-    container_name: jupyter
+    container_name: perocube-jupyter
     user: root
     environment:
       - JUPYTER_TOKEN=${JUPYTER_TOKEN:-jupytertoken} # Set this in .env file
@@ -63,27 +63,20 @@ services:
       - "8888:8888" # Jupyter port
       - "8866:8866" # Voilà port
     volumes:
-      - /nfs/qumulo-a/grafana01/jupyter/work:/home/jovyan/work
-      - /nfs/qumulo-a/grafana01/jupyter/notebooks:/home/jovyan/notebooks
-      - /nfs/qumulo-a/grafana01/jupyter/sample_data:/home/jovyan/sample_data
+      - jupyter-data:/home/jovyan/work
+      - ./notebooks:/home/jovyan/notebooks
+      - ./sample_data:/home/jovyan/sample_data
     depends_on:
       timescaledb:
         condition: service_healthy
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8888/hub/api || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
     command:
       - start-notebook.sh
       - --NotebookApp.token=${JUPYTER_TOKEN:-jupytertoken}
-      - --NotebookApp.base_url=/hub
       #>
       #bash -c "pip install voila ipywidgets &&
     networks:
-      - network
+      - perocube-network
   # Voilà dashboards will run through the Jupyter service
   # You can access any notebook as a dashboard via:
   # http://localhost:8888/voila/render/notebooks/YourNotebook.ipynb
@@ -91,7 +84,7 @@ services:
   # Grafana service for dashboards
   grafana:
     image: grafana/grafana-oss:latest
-    container_name: grafana
+    container_name: perocube-grafana
     ports:
       - "3000:3000"
     environment:
@@ -102,24 +95,18 @@ services:
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - /nfs/qumulo-a/grafana01/grafana/data:/var/lib/grafana
-      - /nfs/qumulo-a/grafana01/grafana/provisioning:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
     depends_on:
       timescaledb:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
     networks:
-      - network
+      - perocube-network
 
   # Streamlit App for Metadata Ingestion
   streamlit:
     build: .
-    container_name: streamlit
+    container_name: perocube-streamlit
     ports:
       - "8501:8501"
     environment:
@@ -132,12 +119,12 @@ services:
       timescaledb:
         condition: service_healthy
     networks:
-      - network
+      - perocube-network
 
   # Cloud TimescaleDB
   timescaledb-cloud:
     image: timescale/timescaledb:latest-pg15
-    container_name: postgres-cloud
+    container_name: perocube-postgres-cloud
     ports:
       - "${DB_CLOUD_PORT:-5433}:5432"
     environment:
@@ -145,7 +132,7 @@ services:
       - POSTGRES_USER=${DB_USER:-postgres}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
-      - /nfs/qumulo-a/grafana01/postgres-cloud:/var/lib/postgresql/data
+      - postgres-cloud-data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-perocube}" ]
@@ -160,25 +147,25 @@ services:
         reservations:
           memory: 1G
     networks:
-      - network
+      - perocube-network
 
   # Flyway for Cloud DB (App Schema)
   flyway-cloud:
     image: flyway/flyway:11-alpine
-    container_name: flyway-cloud
+    container_name: perocube-flyway-cloud
     command: -url=jdbc:postgresql://timescaledb-cloud:5432/${DB_NAME:-perocube} -user=${DB_USER:-postgres} -password=${DB_PASSWORD} -connectRetries=60 -locations=filesystem:/flyway/sql migrate
     volumes:
-      - /nfs/qumulo-a/grafana01/flyway/migrations:/flyway/sql
+      - ./db/migrations:/flyway/sql
     depends_on:
       timescaledb-cloud:
         condition: service_healthy
     networks:
-      - network
+      - perocube-network
 
   # SymmetricDS Edge
   symmetricds-edge:
     image: jumpmind/symmetricds:latest
-    container_name: symmetricds-edge
+    container_name: perocube-symmetricds-edge
     ports:
       - "31415:31415"
       - "8081:8080"
@@ -186,26 +173,26 @@ services:
       - ENGINE_NAME=edge-001
       - DB_PASSWORD=${DB_PASSWORD}
     volumes:
-      - /nfs/qumulo-a/grafana01/symmetricds-edge/edge.properties:/opt/symmetric-ds/engines/edge-001.properties
+      - ./symmetricds/engines/edge.properties:/opt/symmetric-ds/engines/edge-001.properties
     depends_on:
       timescaledb:
         condition: service_healthy
       symmetricds-cloud:
         condition: service_healthy
     networks:
-      - network
+      - perocube-network
 
   # SymmetricDS Cloud
   symmetricds-cloud:
     image: jumpmind/symmetricds:latest
-    container_name: symmetricds-cloud
+    container_name: perocube-symmetricds-cloud
     ports:
       - "31416:31415"
     environment:
       - ENGINE_NAME=cloud-000
       - DB_PASSWORD=${DB_PASSWORD}
     volumes:
-      - /nfs/qumulo-a/grafana01/symmetricds-cloud/cloud.properties:/opt/symmetric-ds/engines/cloud-000.properties
+      - ./symmetricds/engines/cloud.properties:/opt/symmetric-ds/engines/cloud-000.properties
     depends_on:
       timescaledb-cloud:
         condition: service_healthy
@@ -218,12 +205,12 @@ services:
       retries: 5
       start_period: 20s
     networks:
-      - network
+      - perocube-network
 
   # Flyway for SymmetricDS Config
   flyway-sym-config:
     image: flyway/flyway:11-alpine
-    container_name: flyway-sym-config
+    container_name: perocube-flyway-sym-config
     command:
       - -url=jdbc:postgresql://timescaledb-cloud:5432/${DB_NAME:-perocube}
       - -user=${DB_USER:-postgres}
@@ -234,32 +221,23 @@ services:
       - -baselineOnMigrate=true
       - migrate
     volumes:
-      - /nfs/qumulo-a/grafana01/flyway-sym-config/sql:/flyway/sym_sql
+      - ./symmetricds/sql:/flyway/sym_sql
     depends_on:
       symmetricds-cloud:
         condition: service_healthy
     networks:
-      - network
+      - perocube-network
 
-  # Nginx reverse proxy
-  nginx:
-    image: nginx:alpine
-    container_name: nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
-      - /home/service_admin/perocube-data-monitoring-system/config/certs/:/etc/nginx/ssl/
-    depends_on:
-      grafana:
-        condition: service_healthy
-      jupyterhub:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - network
+volumes:
+  postgres-data:
+    driver: local
+  jupyter-data:
+    driver: local
+  grafana-data:
+    driver: local
+  postgres-cloud-data:
+    driver: local
 
 networks:
-  network:
+  perocube-network:
     driver: bridge

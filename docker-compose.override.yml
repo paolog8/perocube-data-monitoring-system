@@ -1,0 +1,37 @@
+# Docker Compose Override File (docker-compose.override.yml)
+# This file is automatically merged with docker-compose.yml by Docker Compose
+# to provide environment-specific configuration (like the corporate proxy).
+
+services:
+  # Target the service named 'jupyterhub' from the base file
+  jupyterhub:
+    # CRITICAL: Re-declare the image to prevent "neither an image nor a build context" error
+    # image: ghcr.io/paolog8/perocube-jupyter:latest
+    # Add the proxy environment variables here.
+    environment:
+      # --- Proxy Configuration for Outbound Traffic ---
+      # Proxy address: http://proxy.csn32.bessy.de:3128
+      # HTTP Proxy (uppercase and lowercase)
+      HTTP_PROXY: "http://proxy.csn29.bessy.de:3128"
+      http_proxy: "http://proxy.csn29.bessy.de:3128"
+
+      # HTTPS Proxy (for secure traffic like pip/conda/git over SSL)
+      # Note: We use the full HTTP address for the HTTPS proxy as well.
+      HTTPS_PROXY: "http://proxy.csn29.bessy.de:3128"
+      https_proxy: "http://proxy.csn29.bessy.de:3128"
+
+      # --- No Proxy Exclusions (CRUCIAL for internal Docker network communication) ---
+      # Ensures the service can talk directly to other containers (like 'timescaledb')
+      # without going through the external proxy. The service name in the base file is 'timescaledb'.
+      NO_PROXY: "localhost,127.0.0.1,timescaledb"
+      no_proxy: "localhost,127.0.0.1,timescaledb"
+  grafana:
+    environment:
+      # Proxy Configuration
+      HTTP_PROXY: "http://proxy.csn29.bessy.de:3128"
+      http_proxy: "http://proxy.csn29.bessy.de:3128"
+      HTTPS_PROXY: "http://proxy.csn29.bessy.de:3128"
+      https_proxy: "http://proxy.csn29.bessy.de:3128"
+      # Exclude internal services (timescaledb) from proxy
+      NO_PROXY: "localhost,127.0.0.1,timescaledb"
+      no_proxy: "localhost,127.0.0.1,timescaledb"
