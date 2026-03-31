@@ -18,7 +18,11 @@ services:
       - /nfs/qumulo-a/grafana01/postgres/schema:/docker-entrypoint-initdb.d
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-perocube}" ]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-perocube}",
+        ]
       interval: 30s
       timeout: 30s
       retries: 3
@@ -178,8 +182,11 @@ services:
   # SymmetricDS hub — receives one-way sync from outdoor measuring PC
   # Served via nginx at /sync/ (no external port needed)
   symmetricds-hub:
-    image: jumpmind/symmetricds:latest
+    image: jumpmind/symmetricds:3.17.0
     container_name: symmetricds-hub
+    ports:
+      - "31415:31415"
+      - "31417:31417"
     environment:
       - SYM_PASSWORD=${SYM_PASSWORD}
     volumes:
