@@ -25,7 +25,7 @@ INSERT INTO sym_node_group_link (
     data_event_action,
     sync_config_enabled
 )
-VALUES ('edge', 'hub', 'P', 0);
+VALUES ('edge', 'hub', 'P', 1);
 
 -- ------------------------------------------------------------
 -- Channel
