@@ -189,6 +189,8 @@ services:
       - "31417:31417"
     environment:
       - SYM_PASSWORD=${SYM_PASSWORD}
+      - SYM_SERVER_ADDRESS=${SYM_SERVER_ADDRESS}
+      - SYM_SERVER_PORT=${SYM_SERVER_PORT}
     volumes:
       - ./symmetricds/engines/outdoor-hub.properties:/opt/symmetric-ds/engines/outdoor-hub.properties
     # depends_on:
