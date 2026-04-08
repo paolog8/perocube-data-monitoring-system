@@ -162,15 +162,14 @@ services:
   flyway-sym-config:
     image: flyway/flyway:11-alpine
     container_name: flyway-sym-config
-    command: >
-      -url=jdbc:postgresql://timescaledb:5432/outdoor_monitoring
-      -user=${DB_USER:-postgres}
-      -password=${DB_PASSWORD}
-      -connectRetries=60
-      -locations=filesystem:/flyway/sym_sql
-      -table=flyway_schema_history_sym
-      -baselineOnMigrate=true
-      migrate
+    command: migrate
+    env_file:
+      - .env
+      - flyway-sym-config.env
+    environment:
+      FLYWAY_URL: jdbc:postgresql://timescaledb:5432/outdoor_monitoring
+      FLYWAY_USER: ${DB_USER:-postgres}
+      FLYWAY_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./symmetricds/sql:/flyway/sym_sql
     depends_on:
