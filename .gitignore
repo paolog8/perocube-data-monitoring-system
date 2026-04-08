@@ -24,7 +24,7 @@ wheels/
 venv/
 env/
 ENV/
-.env
+*.env
 
 # Data files
 sample_data/datasets/PeroCube-sample-data/**/data/
