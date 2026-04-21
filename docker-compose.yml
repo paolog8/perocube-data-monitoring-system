@@ -199,6 +199,30 @@ services:
     networks:
       - network
 
+  restart-orchestrator:
+    image: docker:cli
+    entrypoint:
+      - sh
+      - -c
+      - |
+        INTERVAL=$${RESTART_INTERVAL:-21600}
+        echo "[restart-orchestrator] Will restart symmetricds-hub every $${INTERVAL}s"
+        while true; do
+          sleep $$INTERVAL
+          echo "[restart-orchestrator] $(date -u) — restarting symmetricds-hub"
+          docker restart -t 30 symmetricds-hub
+          echo "[restart-orchestrator] $(date -u) — done"
+        done
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - symmetricds-hub
+    environment:
+      - RESTART_INTERVAL=${RESTART_INTERVAL:-21600}
+    restart: unless-stopped
+    networks:
+      - network
+
   # Nginx reverse proxy
   nginx:
     image: nginx:alpine
