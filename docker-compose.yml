@@ -168,8 +168,8 @@ services:
       -password=${DB_PASSWORD}
       -connectRetries=60
       migrate
-    # environment:
-    #   - FLYWAY_PLACEHOLDERS_SYM_PASSWORD=${SYM_PASSWORD}
+    environment:
+      - FLYWAY_PLACEHOLDERS_SYM_PASSWORD=${SYM_PASSWORD}
     volumes:
       - ./db/outdoor_migrations:/flyway/sql
     depends_on:
