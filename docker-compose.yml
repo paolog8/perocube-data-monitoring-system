@@ -138,6 +138,26 @@ services:
     networks:
       - network
 
+  # Creates the outdoor_monitoring database if it does not already exist.
+  # Runs before flyway-outdoor so Flyway always has a database to connect to.
+  create-outdoor-db:
+    image: timescale/timescaledb:latest-pg15
+    entrypoint:
+      - sh
+      - -c
+      - |
+        psql -h timescaledb -U ${DB_USER:-postgres} -c \
+          "CREATE DATABASE outdoor_monitoring;" 2>&1 \
+          | grep -v "already exists"; exit 0
+    environment:
+      PGPASSWORD: ${DB_PASSWORD}
+      DB_USER: ${DB_USER:-postgres}
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    networks:
+      - network
+
   # Flyway — apply outdoor_monitoring schema (V1-V22) to the new database
   flyway-outdoor:
     image: flyway/flyway:11-alpine
@@ -153,8 +173,8 @@ services:
     volumes:
       - ./db/outdoor_migrations:/flyway/sql
     depends_on:
-      timescaledb:
-        condition: service_healthy
+      create-outdoor-db:
+        condition: service_completed_successfully
     networks:
       - network
 
