@@ -212,6 +212,8 @@ services:
       - SYM_SERVER_PORT=31415
     volumes:
       - ./symmetricds/engines/outdoor-hub.properties:/opt/symmetric-ds/engines/outdoor-hub.properties
+      - /nfs/qumulo-a/grafana01/symmetricds/tmp:/opt/symmetric-ds/tmp
+      - /nfs/qumulo-a/grafana01/symmetricds/logs:/opt/symmetric-ds/logs
     depends_on:
       flyway-sym-config:
         condition: service_completed_successfully
