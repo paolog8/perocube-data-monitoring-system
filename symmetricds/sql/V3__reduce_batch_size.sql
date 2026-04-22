@@ -6,6 +6,6 @@
 UPDATE sym_channel
 SET
     max_batch_size    = 1000,
-    max_batch_to_send = 500,
+    max_batch_to_send = 1000,
     last_update_time  = now()
 WHERE channel_id = 'outdoor_monitoring';
