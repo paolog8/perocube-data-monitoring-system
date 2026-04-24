@@ -433,6 +433,7 @@ def _render_setup_tab():
     setup_owner_label = "(none)"
     setup_group_label = "(standalone)"
     setup_position = ""
+    setup_nomad_url = ""
     if any(row["is_new"] for row in st.session_state.setup):
         st.divider()
         st.subheader("New cell metadata")
@@ -466,6 +467,10 @@ def _render_setup_tab():
                 "Position in group",
                 placeholder="P1, top, ...",
                 key="setup_position",
+            )
+            setup_nomad_url = st.text_input(
+                "NOMAD entry URL",
+                key="setup_nomad_url",
             )
 
     st.divider()
@@ -535,6 +540,7 @@ def _render_setup_tab():
                         owner_id,
                         group_id,
                         setup_position.strip() or None,
+                        setup_nomad_url.strip() or None,
                     )
 
                 if row["slot_id"] is not None:
