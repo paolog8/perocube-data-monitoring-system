@@ -30,6 +30,8 @@ ENV/
 sample_data/datasets/PeroCube-sample-data/**/data/
 sample_data/datasets/**/data/
 *.txt
+!requirements.txt
+!**/requirements.txt
 *.csv
 *.xlsx
 *.xls
