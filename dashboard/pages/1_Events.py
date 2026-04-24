@@ -119,6 +119,13 @@ def _clear_and_rerun():
     st.rerun()
 
 
+def _render_date_picker(key_prefix):
+    use_today = st.checkbox("Use today's date", key=f"{key_prefix}_use_today")
+    if use_today:
+        return date.today()
+    return st.date_input("Event date", value=None, key=f"{key_prefix}_date")
+
+
 def _render_batch_builder(existing_cells, add_callback, prefix):
     col_batch, col_single = st.columns([2, 1])
 
@@ -165,7 +172,9 @@ def _render_batch_builder(existing_cells, add_callback, prefix):
             add_callback([pick])
 
 
-def _render_setup_tab(event_date):
+def _render_setup_tab():
+    event_date = _render_date_picker("setup")
+    st.divider()
     existing_cells = load_cells()
     existing_names = {name for _, name in existing_cells}
     sensors = load_sensors()
@@ -461,6 +470,8 @@ def _render_setup_tab(event_date):
         "Submit setup events", type="primary", disabled=not st.session_state.setup
     ):
         errors = []
+        if event_date is None:
+            errors.append("Select an event date.")
         db_rows_mpp = []
         db_rows_sensor = []
 
@@ -556,7 +567,9 @@ def _render_setup_tab(event_date):
             st.error(f"Database error: {exc}")
 
 
-def _render_teardown_tab(event_date):
+def _render_teardown_tab():
+    event_date = _render_date_picker("teardown")
+    st.divider()
     existing_cells = load_cells()
     cell_id_by_name = {cell_name: cell_id for cell_id, cell_name in existing_cells}
 
@@ -654,6 +667,8 @@ def _render_teardown_tab(event_date):
         "Submit teardown events", type="primary", disabled=not st.session_state.teardown
     ):
         errors = []
+        if event_date is None:
+            errors.append("Select an event date.")
         db_rows_mpp = []
         db_rows_sensor = []
         names = []
@@ -720,7 +735,7 @@ def _render_teardown_tab(event_date):
             st.error(f"Database error: {exc}")
 
 
-def _render_register_connect_tab(event_date):
+def _render_register_connect_tab():
     st.subheader("Register a new cell and connect it in one step")
 
     scientist_options = _scientist_options()
@@ -791,8 +806,13 @@ def _render_register_connect_tab(event_date):
         )
         sensor_ids = [sensor_id_by_label[lbl] for lbl in selected_sensor_labels]
 
+        st.divider()
+        event_date = _render_date_picker("rc")
+
     if st.button("Register & Connect", type="primary", key="rc_submit"):
         errors = []
+        if event_date is None:
+            errors.append("Select an event date.")
         cell_name_clean = cell_name.strip()
         if not cell_name_clean:
             errors.append("Cell name is required.")
@@ -870,18 +890,15 @@ def _render_register_connect_tab(event_date):
 
 _ensure_state()
 
-with st.sidebar:
-    event_date = st.date_input("Date", value=date.today())
-
 tab_setup, tab_teardown, tab_register = st.tabs(
     ["Connect & Associate", "Disconnect & Dissociate", "Register & Connect"]
 )
 
 with tab_setup:
-    _render_setup_tab(event_date)
+    _render_setup_tab()
 
 with tab_teardown:
-    _render_teardown_tab(event_date)
+    _render_teardown_tab()
 
 with tab_register:
-    _render_register_connect_tab(event_date)
+    _render_register_connect_tab()
