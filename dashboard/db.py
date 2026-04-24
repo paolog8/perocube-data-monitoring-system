@@ -409,13 +409,13 @@ def update_group_cell_id(group_id, cell_id):
         conn.commit()
 
 
-def insert_cell(name, area_cm2, manufacturer_id, owner_id, group_id, position_in_group):
+def insert_cell(name, area_cm2, manufacturer_id, owner_id, group_id, position_in_group, nomad_entry_url=None):
     with get_connection() as conn, conn.cursor() as cur:
         cur.execute(
             """
             INSERT INTO solar_cell
-                (name, area_cm2, manufacturer_id, owner_id, group_id, position_in_group)
-            VALUES (%s, %s, %s, %s, %s, %s)
+                (name, area_cm2, manufacturer_id, owner_id, group_id, position_in_group, nomad_entry_url)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             RETURNING id
             """,
             (
@@ -425,6 +425,7 @@ def insert_cell(name, area_cm2, manufacturer_id, owner_id, group_id, position_in
                 owner_id,
                 group_id,
                 position_in_group or None,
+                nomad_entry_url or None,
             ),
         )
         return cur.fetchone()[0]

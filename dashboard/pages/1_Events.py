@@ -778,6 +778,7 @@ def _render_register_connect_tab():
             "Group", list(group_options.keys()), key="rc_group"
         )
         position_str = st.text_input("Position in group", key="rc_position")
+        nomad_url_str = st.text_input("NOMAD entry URL", key="rc_nomad_url")
 
     with col_conn:
         st.markdown("**Connection (optional)**")
@@ -853,7 +854,8 @@ def _render_register_connect_tab():
             group_id = group_options[group_label]
 
             cell_id = insert_cell(
-                cell_name_clean, area_cm2, mfr_id, owner_id, group_id, position_in_group
+                cell_name_clean, area_cm2, mfr_id, owner_id, group_id, position_in_group,
+                nomad_url_str.strip() or None,
             )
 
             db_rows_mpp = []
