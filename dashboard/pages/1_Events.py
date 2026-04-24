@@ -120,10 +120,13 @@ def _clear_and_rerun():
 
 
 def _render_date_picker(key_prefix):
-    use_today = st.checkbox("Use today's date", key=f"{key_prefix}_use_today")
+    col_check, col_date = st.columns([1, 1])
+    with col_check:
+        use_today = st.checkbox("Use today's date", key=f"{key_prefix}_use_today")
     if use_today:
         return date.today()
-    return st.date_input("Event date", value=None, key=f"{key_prefix}_date")
+    with col_date:
+        return st.date_input("Event date", value=None, key=f"{key_prefix}_date", label_visibility="collapsed")
 
 
 def _render_batch_builder(existing_cells, add_callback, prefix):
