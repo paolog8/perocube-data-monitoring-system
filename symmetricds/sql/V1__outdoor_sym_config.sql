@@ -23,7 +23,7 @@ INSERT INTO sym_channel (
 VALUES (
     'outdoor_monitoring',
     3,
-    10000,
+    1000,
     10,
     0,
     'default',
