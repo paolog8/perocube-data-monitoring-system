@@ -120,21 +120,24 @@ services:
     networks:
       - network
 
-  # Streamlit App for Metadata Ingestion
-  streamlit:
-    build: .
-    container_name: streamlit
+  # Streamlit dashboard (outdoor-data-monitoring UI)
+  dashboard:
+    build: ./dashboard
+    container_name: dashboard
     ports:
       - "8501:8501"
     environment:
-      - DB_HOST=timescaledb
-      - DB_NAME=${DB_NAME:-perocube}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_PORT=${DB_PORT:-5432}
+      - PGHOST=timescaledb
+      - PGPORT=5432
+      - PGDATABASE=outdoor_monitoring
+      - PGUSER=${DB_USER:-postgres}
+      - PGPASSWORD=${DB_PASSWORD}
     depends_on:
       timescaledb:
         condition: service_healthy
+      flyway-outdoor:
+        condition: service_completed_successfully
+    restart: unless-stopped
     networks:
       - network
 
