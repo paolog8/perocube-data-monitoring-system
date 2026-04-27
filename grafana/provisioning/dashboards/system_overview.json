@@ -1,0 +1,179 @@
+{
+  "title": "Outdoor Monitoring — System Overview",
+  "uid": "outdoor-system-overview",
+  "description": "Slot-level data coverage, environmental conditions, and ingestion summary.",
+  "schemaVersion": 38,
+  "version": 1,
+  "tags": ["outdoor-monitoring"],
+  "timezone": "browser",
+  "time": { "from": "now-90d", "to": "now" },
+  "timepicker": {},
+  "refresh": "",
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "id": 1,
+      "title": "Slots with Data",
+      "type": "stat",
+      "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 4 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center"
+      },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] }, "unit": "short" },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+          "rawSql": "SELECT COUNT(DISTINCT mpp_tracking_slot_id)::int AS value FROM mpp_measurement",
+          "format": "table",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Days of Data",
+      "type": "stat",
+      "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 4 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center"
+      },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }, "unit": "d" },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+          "rawSql": "SELECT ROUND(EXTRACT(EPOCH FROM MAX(time) - MIN(time)) / 86400)::int AS value FROM mpp_measurement",
+          "format": "table",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Total MPP Measurements",
+      "type": "stat",
+      "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 4 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center"
+      },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] }, "unit": "short", "decimals": 0 },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+          "rawSql": "SELECT COUNT(*)::bigint AS value FROM mpp_measurement",
+          "format": "table",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Temperature",
+      "type": "timeseries",
+      "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 9 },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 1, "fillOpacity": 0, "spanNulls": false },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+          "rawSql": "SELECT\n  time_bucket('1 hour', time) AS time,\n  ts.name AS metric,\n  AVG(temperature) AS value\nFROM temperature_measurement tm\nJOIN temperature_sensor ts ON ts.id = tm.temperature_sensor_id\nWHERE $__timeFilter(time)\nGROUP BY 1, 2\nORDER BY 1",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Irradiance",
+      "type": "timeseries",
+      "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 9 },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 1, "fillOpacity": 0, "spanNulls": false },
+          "unit": "wm2"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+          "rawSql": "SELECT\n  time_bucket('1 hour', time) AS time,\n  irs.name AS metric,\n  AVG(irradiance) AS value\nFROM irradiance_measurement im\nJOIN irradiance_sensor irs ON irs.id = im.irradiance_sensor_id\nWHERE $__timeFilter(time)\nGROUP BY 1, 2\nORDER BY 1",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Slot Data Coverage",
+      "type": "table",
+      "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+      "gridPos": { "x": 0, "y": 13, "w": 24, "h": 12 },
+      "options": {
+        "footer": { "show": false },
+        "showHeader": true,
+        "sortBy": [{ "displayName": "Days", "desc": true }]
+      },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "filterable": true } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Days" }, "properties": [{ "id": "custom.width", "value": 80 }] },
+          { "matcher": { "id": "byName", "options": "First Data" }, "properties": [{ "id": "custom.width", "value": 120 }] },
+          { "matcher": { "id": "byName", "options": "Last Data" }, "properties": [{ "id": "custom.width", "value": 120 }] }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+          "rawSql": "SELECT\n  tracker_name       AS \"Tracker\",\n  slot_code          AS \"Slot\",\n  to_char(first_measurement, 'YYYY-MM-DD') AS \"First Data\",\n  to_char(last_measurement,  'YYYY-MM-DD') AS \"Last Data\",\n  total_days                               AS \"Days\"\nFROM mpp_slot_data_coverage\nORDER BY tracker_name, slot_code",
+          "format": "table",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}
