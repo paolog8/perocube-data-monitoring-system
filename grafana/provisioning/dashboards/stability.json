@@ -1,0 +1,170 @@
+{
+  "title": "Outdoor Monitoring — MPP Stability",
+  "uid": "outdoor-mpp-stability",
+  "description": "Per-cell MPP tracking: power, voltage, current over the full measurement period. Select one or more cells from the dropdown. The cell variable populates once solar_cell metadata and connection events are registered.",
+  "schemaVersion": 38,
+  "version": 1,
+  "tags": ["outdoor-monitoring"],
+  "timezone": "browser",
+  "time": { "from": "now-2y", "to": "now" },
+  "timepicker": {},
+  "refresh": "",
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "templating": {
+    "list": [
+      {
+        "name": "cell",
+        "label": "Cell",
+        "type": "query",
+        "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+        "query": "SELECT\n  COALESCE(id_alternative, name) AS __text,\n  name                           AS __value\nFROM solar_cell\nWHERE name IN (SELECT cell_name FROM mpp_data_coverage)\nORDER BY 1",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "allValue": null,
+        "current": {},
+        "sort": 1,
+        "hide": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Power (mW)",
+      "type": "timeseries",
+      "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 10 },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 1, "fillOpacity": 0, "spanNulls": false },
+          "unit": "short",
+          "displayName": "${__field.labels.metric}"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+          "rawSql": "SELECT\n  time_bucket('1 hour', m.measured_at)   AS time,\n  COALESCE(c.id_alternative, c.name)     AS metric,\n  AVG(m.power_mw)                        AS power_mw\nFROM solar_cell c,\nLATERAL mpp_measurements_for_cell(\n    c.name,\n    $__timeFrom()::timestamptz,\n    $__timeTo()::timestamptz\n) m\nWHERE c.name IN (${cell:sqlstring})\nGROUP BY 1, 2\nORDER BY 1",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Voltage (V)",
+      "type": "timeseries",
+      "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+      "gridPos": { "x": 0, "y": 10, "w": 12, "h": 8 },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 1, "fillOpacity": 0, "spanNulls": false },
+          "unit": "volt"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+          "rawSql": "SELECT\n  time_bucket('1 hour', m.measured_at)   AS time,\n  COALESCE(c.id_alternative, c.name)     AS metric,\n  AVG(m.voltage)                         AS voltage_v\nFROM solar_cell c,\nLATERAL mpp_measurements_for_cell(\n    c.name,\n    $__timeFrom()::timestamptz,\n    $__timeTo()::timestamptz\n) m\nWHERE c.name IN (${cell:sqlstring})\nGROUP BY 1, 2\nORDER BY 1",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Current (A)",
+      "type": "timeseries",
+      "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+      "gridPos": { "x": 12, "y": 10, "w": 12, "h": 8 },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 1, "fillOpacity": 0, "spanNulls": false },
+          "unit": "amp"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+          "rawSql": "SELECT\n  time_bucket('1 hour', m.measured_at)   AS time,\n  COALESCE(c.id_alternative, c.name)     AS metric,\n  AVG(m.current_a)                       AS current_a\nFROM solar_cell c,\nLATERAL mpp_measurements_for_cell(\n    c.name,\n    $__timeFrom()::timestamptz,\n    $__timeTo()::timestamptz\n) m\nWHERE c.name IN (${cell:sqlstring})\nGROUP BY 1, 2\nORDER BY 1",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Temperature",
+      "type": "timeseries",
+      "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+      "gridPos": { "x": 0, "y": 18, "w": 12, "h": 8 },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 1, "fillOpacity": 0, "spanNulls": false },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+          "rawSql": "SELECT\n  time_bucket('1 hour', time) AS time,\n  ts.name AS metric,\n  AVG(temperature) AS temperature_c\nFROM temperature_measurement tm\nJOIN temperature_sensor ts ON ts.id = tm.temperature_sensor_id\nWHERE $__timeFilter(time)\nGROUP BY 1, 2\nORDER BY 1",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Irradiance",
+      "type": "timeseries",
+      "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+      "gridPos": { "x": 12, "y": 18, "w": 12, "h": 8 },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "none" },
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 1, "fillOpacity": 0, "spanNulls": false },
+          "unit": "wm2"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "outdoor-monitoring" },
+          "rawSql": "SELECT\n  time_bucket('1 hour', time) AS time,\n  irs.name AS metric,\n  AVG(irradiance) AS irradiance_w_m2\nFROM irradiance_measurement im\nJOIN irradiance_sensor irs ON irs.id = im.irradiance_sensor_id\nWHERE $__timeFilter(time)\nGROUP BY 1, 2\nORDER BY 1",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}
