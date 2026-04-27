@@ -107,7 +107,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
     volumes:
       - /nfs/qumulo-a/grafana01/grafana/data:/var/lib/grafana
-      - /nfs/qumulo-a/grafana01/grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/provisioning:/etc/grafana/provisioning
     depends_on:
       timescaledb:
         condition: service_healthy
