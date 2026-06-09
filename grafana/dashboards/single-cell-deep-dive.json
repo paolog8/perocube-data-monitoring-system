@@ -44,7 +44,7 @@
             "type": "postgres",
             "uid": "ffk21zlrlrqioe"
           },
-          "rawSql": "SELECT\n  sc.name              AS \"Cell\",\n  sct.code             AS \"Type\",\n  sc.structure         AS \"Structure\",\n  sc.area_cm2          AS \"Area (cm²)\",\n  sc.initial_pce       AS \"Initial PCE (%)\",\n  man.name             AS \"Manufacturer\",\n  own.name             AS \"Owner\",\n  sc.id_pvcomb         AS \"PVcomB ID\",\n  sc.nomad_entry_url   AS \"NOMAD\"\nFROM solar_cell sc\nLEFT JOIN solar_cell_type sct ON sct.id = sc.cell_type_id\nLEFT JOIN scientist man       ON man.id = sc.manufacturer_id\nLEFT JOIN scientist own       ON own.id = sc.owner_id\nWHERE sc.name = '$cell'",
+          "rawSql": "SELECT\n  sc.name              AS \"Cell\",\n  sct.code             AS \"Type\",\n  sc.structure         AS \"Structure\",\n  sc.area_cm2          AS \"Area (cm²)\",\n  sc.initial_pce       AS \"Initial PCE (%)\",\n  man.name             AS \"Manufacturer\",\n  own.name             AS \"Owner\",\n  sc.id_pvcomb         AS \"PVcomB ID\",\n  act.first_conn       AS \"Active From\",\n  act.last_event       AS \"Active Until\",\n  sc.nomad_entry_url   AS \"NOMAD\"\nFROM solar_cell sc\nLEFT JOIN solar_cell_type sct ON sct.id = sc.cell_type_id\nLEFT JOIN scientist man       ON man.id = sc.manufacturer_id\nLEFT JOIN scientist own       ON own.id = sc.owner_id\nLEFT JOIN LATERAL (\n  SELECT MIN(occurred_at) AS first_conn, MAX(occurred_at) AS last_event\n  FROM mpp_connection_event ce\n  WHERE ce.solar_cell_id = sc.id\n) act ON true\nWHERE sc.name = '$cell'",
           "format": "table"
         }
       ],
@@ -105,6 +105,18 @@
               {
                 "id": "decimals",
                 "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "Active From|Active Until"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
               }
             ]
           },
@@ -740,7 +752,7 @@
     ]
   },
   "time": {
-    "from": "now-7d",
+    "from": "2020-01-01T00:00:00.000Z",
     "to": "now"
   },
   "timepicker": {},
