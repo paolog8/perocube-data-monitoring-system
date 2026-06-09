@@ -416,7 +416,7 @@
             "type": "postgres",
             "uid": "ffk21zlrlrqioe"
           },
-          "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  AVG(temperature) AS \"Temperature (°C)\"\nFROM temperature_measurement\nWHERE $__timeFilter(time)\n  AND temperature <> -999\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  AVG(temperature) AS \"Temperature (°C)\"\nFROM temperature_measurement\nWHERE $__timeFilter(time)\n  AND temperature > -999\nGROUP BY 1\nORDER BY 1",
           "format": "time_series"
         }
       ],
