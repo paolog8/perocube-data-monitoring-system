@@ -227,8 +227,8 @@
     },
     {
       "id": 4,
-      "title": "Temperature",
-      "description": "Latest ambient temperature — sparkline shows last 24 h",
+      "title": "Cell Temperature",
+      "description": "Latest average cell temperature — sparkline shows last 24 h",
       "type": "stat",
       "gridPos": {
         "h": 4,
@@ -387,8 +387,8 @@
     },
     {
       "id": 6,
-      "title": "Environmental Conditions",
-      "description": "Irradiance (W/m², left axis) and ambient temperature (°C, right axis)",
+      "title": "Irradiance & Cell Temperature",
+      "description": "Irradiance (W/m², left axis) and cell temperature (°C, right axis)",
       "type": "timeseries",
       "gridPos": {
         "h": 9,
@@ -416,7 +416,7 @@
             "type": "postgres",
             "uid": "ffk21zlrlrqioe"
           },
-          "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  AVG(temperature) AS \"Temperature (°C)\"\nFROM temperature_measurement\nWHERE $__timeFilter(time)\n  AND temperature > -999\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  AVG(temperature) AS \"Cell Temperature (°C)\"\nFROM temperature_measurement\nWHERE $__timeFilter(time)\n  AND temperature > -999\nGROUP BY 1\nORDER BY 1",
           "format": "time_series"
         }
       ],
@@ -502,7 +502,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Temperature (°C)"
+              "options": "Cell Temperature (°C)"
             },
             "properties": [
               {
@@ -522,7 +522,7 @@
               },
               {
                 "id": "custom.axisLabel",
-                "value": "Temperature (°C)"
+                "value": "Cell Temperature (°C)"
               },
               {
                 "id": "custom.axisColorMode",
