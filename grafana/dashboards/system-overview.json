@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -24,18 +27,35 @@
       "title": "Active Cells",
       "description": "Solar cells currently in a connected state",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
-      "datasource": { "type": "postgres", "uid": "ffk21zlrlrqioe" },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "ffk21zlrlrqioe"
+      },
       "targets": [
         {
           "refId": "A",
-          "datasource": { "type": "postgres", "uid": "ffk21zlrlrqioe" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "ffk21zlrlrqioe"
+          },
           "rawSql": "SELECT COUNT(*) AS value\nFROM (\n  SELECT DISTINCT ON (mpp_tracking_slot_id) event_type\n  FROM mpp_connection_event\n  WHERE occurred_at <= $__timeTo()\n  ORDER BY mpp_tracking_slot_id, occurred_at DESC\n) latest\nWHERE event_type = 'connection'",
           "format": "table"
         }
       ],
       "options": {
-        "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" },
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
         "orientation": "auto",
         "textMode": "auto",
         "wideLayout": true,
@@ -45,15 +65,32 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [
-            { "type": "value", "options": { "0": { "text": "None", "color": "#F2495C", "index": 0 } } }
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "None",
+                  "color": "#F2495C",
+                  "index": 0
+                }
+              }
+            }
           ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#F2495C", "value": null },
-              { "color": "#73BF69", "value": 1 }
+              {
+                "color": "#F2495C",
+                "value": null
+              },
+              {
+                "color": "#73BF69",
+                "value": 1
+              }
             ]
           },
           "unit": "short",
@@ -67,18 +104,35 @@
       "title": "Total Power Output",
       "description": "Sum of power across all tracking slots — sparkline shows last 24 h",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
-      "datasource": { "type": "postgres", "uid": "ffk21zlrlrqioe" },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "ffk21zlrlrqioe"
+      },
       "targets": [
         {
           "refId": "A",
-          "datasource": { "type": "postgres", "uid": "ffk21zlrlrqioe" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "ffk21zlrlrqioe"
+          },
           "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  SUM(power) AS \"Total Power\"\nFROM mpp_measurement\nWHERE $__timeFilter(time)\nGROUP BY 1\nORDER BY 1",
           "format": "time_series"
         }
       ],
       "options": {
-        "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" },
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
         "orientation": "auto",
         "textMode": "auto",
         "wideLayout": true,
@@ -88,11 +142,19 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "fixed", "fixedColor": "#FF9830" },
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#FF9830"
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "#FF9830", "value": null }]
+            "steps": [
+              {
+                "color": "#FF9830",
+                "value": null
+              }
+            ]
           },
           "unit": "mwatt",
           "decimals": 1
@@ -105,18 +167,35 @@
       "title": "Irradiance",
       "description": "Latest irradiance reading — sparkline shows last 24 h",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
-      "datasource": { "type": "postgres", "uid": "ffk21zlrlrqioe" },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "ffk21zlrlrqioe"
+      },
       "targets": [
         {
           "refId": "A",
-          "datasource": { "type": "postgres", "uid": "ffk21zlrlrqioe" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "ffk21zlrlrqioe"
+          },
           "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  AVG(irradiance) AS \"Irradiance\"\nFROM irradiance_measurement\nWHERE $__timeFilter(time)\nGROUP BY 1\nORDER BY 1",
           "format": "time_series"
         }
       ],
       "options": {
-        "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" },
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
         "orientation": "auto",
         "textMode": "auto",
         "wideLayout": true,
@@ -126,11 +205,19 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "fixed", "fixedColor": "#FADE2A" },
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#FADE2A"
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "#FADE2A", "value": null }]
+            "steps": [
+              {
+                "color": "#FADE2A",
+                "value": null
+              }
+            ]
           },
           "unit": "wm2",
           "decimals": 0
@@ -143,18 +230,35 @@
       "title": "Temperature",
       "description": "Latest ambient temperature — sparkline shows last 24 h",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
-      "datasource": { "type": "postgres", "uid": "ffk21zlrlrqioe" },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "ffk21zlrlrqioe"
+      },
       "targets": [
         {
           "refId": "A",
-          "datasource": { "type": "postgres", "uid": "ffk21zlrlrqioe" },
-          "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  AVG(temperature) AS \"Temperature\"\nFROM temperature_measurement\nWHERE $__timeFilter(time)\n  AND temperature <> -999\nGROUP BY 1\nORDER BY 1",
+          "datasource": {
+            "type": "postgres",
+            "uid": "ffk21zlrlrqioe"
+          },
+          "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  AVG(temperature) AS \"Temperature\"\nFROM temperature_measurement\nWHERE $__timeFilter(time)\n  AND temperature > -999\nGROUP BY 1\nORDER BY 1",
           "format": "time_series"
         }
       ],
       "options": {
-        "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" },
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
         "orientation": "auto",
         "textMode": "auto",
         "wideLayout": true,
@@ -164,15 +268,29 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#5794F2", "value": null },
-              { "color": "#73BF69", "value": 15 },
-              { "color": "#FADE2A", "value": 30 },
-              { "color": "#F2495C", "value": 40 }
+              {
+                "color": "#5794F2",
+                "value": null
+              },
+              {
+                "color": "#73BF69",
+                "value": 15
+              },
+              {
+                "color": "#FADE2A",
+                "value": 30
+              },
+              {
+                "color": "#F2495C",
+                "value": 40
+              }
             ]
           },
           "unit": "celsius",
@@ -186,23 +304,44 @@
       "title": "Total Power Over Time",
       "description": "Sum of power across all tracking slots, binned to 5-minute buckets",
       "type": "timeseries",
-      "gridPos": { "h": 9, "w": 15, "x": 0, "y": 4 },
-      "datasource": { "type": "postgres", "uid": "ffk21zlrlrqioe" },
+      "gridPos": {
+        "h": 9,
+        "w": 15,
+        "x": 0,
+        "y": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "ffk21zlrlrqioe"
+      },
       "targets": [
         {
           "refId": "A",
-          "datasource": { "type": "postgres", "uid": "ffk21zlrlrqioe" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "ffk21zlrlrqioe"
+          },
           "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  SUM(power) AS \"Total Power\"\nFROM mpp_measurement\nWHERE $__timeFilter(time)\nGROUP BY 1\nORDER BY 1",
           "format": "time_series"
         }
       ],
       "options": {
-        "tooltip": { "mode": "single", "sort": "none" },
-        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": false }
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        }
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "fixed", "fixedColor": "#73BF69" },
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#73BF69"
+          },
           "custom": {
             "axisLabel": "Power (mW)",
             "axisPlacement": "auto",
@@ -210,20 +349,36 @@
             "drawStyle": "line",
             "fillOpacity": 25,
             "gradientMode": "opacity",
-            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
             "lineInterpolation": "smooth",
             "lineWidth": 2,
             "pointSize": 5,
-            "scaleDistribution": { "type": "linear" },
+            "scaleDistribution": {
+              "type": "linear"
+            },
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "off" }
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "green", "value": null }]
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
           },
           "unit": "mwatt"
         },
@@ -235,25 +390,46 @@
       "title": "Environmental Conditions",
       "description": "Irradiance (W/m², left axis) and ambient temperature (°C, right axis)",
       "type": "timeseries",
-      "gridPos": { "h": 9, "w": 9, "x": 15, "y": 4 },
-      "datasource": { "type": "postgres", "uid": "ffk21zlrlrqioe" },
+      "gridPos": {
+        "h": 9,
+        "w": 9,
+        "x": 15,
+        "y": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "ffk21zlrlrqioe"
+      },
       "targets": [
         {
           "refId": "A",
-          "datasource": { "type": "postgres", "uid": "ffk21zlrlrqioe" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "ffk21zlrlrqioe"
+          },
           "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  AVG(irradiance) AS \"Irradiance (W/m²)\"\nFROM irradiance_measurement\nWHERE $__timeFilter(time)\nGROUP BY 1\nORDER BY 1",
           "format": "time_series"
         },
         {
           "refId": "B",
-          "datasource": { "type": "postgres", "uid": "ffk21zlrlrqioe" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "ffk21zlrlrqioe"
+          },
           "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  AVG(temperature) AS \"Temperature (°C)\"\nFROM temperature_measurement\nWHERE $__timeFilter(time)\n  AND temperature <> -999\nGROUP BY 1\nORDER BY 1",
           "format": "time_series"
         }
       ],
       "options": {
-        "tooltip": { "mode": "multi", "sort": "none" },
-        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": false }
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        }
       },
       "fieldConfig": {
         "defaults": {
@@ -263,40 +439,95 @@
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "opacity",
-            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
             "lineInterpolation": "smooth",
             "lineWidth": 2,
             "pointSize": 5,
-            "scaleDistribution": { "type": "linear" },
+            "scaleDistribution": {
+              "type": "linear"
+            },
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "off" }
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "green", "value": null }]
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
           }
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Irradiance (W/m²)" },
+            "matcher": {
+              "id": "byName",
+              "options": "Irradiance (W/m²)"
+            },
             "properties": [
-              { "id": "color", "value": { "mode": "fixed", "fixedColor": "#FF9830" } },
-              { "id": "unit", "value": "wm2" },
-              { "id": "custom.axisLabel", "value": "Irradiance (W/m²)" },
-              { "id": "custom.axisColorMode", "value": "series" }
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#FF9830"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "wm2"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Irradiance (W/m²)"
+              },
+              {
+                "id": "custom.axisColorMode",
+                "value": "series"
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Temperature (°C)" },
+            "matcher": {
+              "id": "byName",
+              "options": "Temperature (°C)"
+            },
             "properties": [
-              { "id": "color", "value": { "mode": "fixed", "fixedColor": "#F2495C" } },
-              { "id": "unit", "value": "celsius" },
-              { "id": "custom.axisPlacement", "value": "right" },
-              { "id": "custom.axisLabel", "value": "Temperature (°C)" },
-              { "id": "custom.axisColorMode", "value": "series" }
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#F2495C"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "celsius"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Temperature (°C)"
+              },
+              {
+                "id": "custom.axisColorMode",
+                "value": "series"
+              }
             ]
           }
         ]
@@ -306,7 +537,12 @@
       "id": 7,
       "title": "Active Connections",
       "type": "row",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 13 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
       "collapsed": false,
       "panels": []
     },
@@ -315,110 +551,226 @@
       "title": "Active Connections",
       "description": "All slots currently in a connection state with latest measurement values",
       "type": "table",
-      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 14 },
-      "datasource": { "type": "postgres", "uid": "ffk21zlrlrqioe" },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "ffk21zlrlrqioe"
+      },
       "targets": [
         {
           "refId": "A",
-          "datasource": { "type": "postgres", "uid": "ffk21zlrlrqioe" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "ffk21zlrlrqioe"
+          },
           "rawSql": "SELECT\n  t.name                          AS \"Tracker\",\n  s.slot_code                     AS \"Slot\",\n  sc.name                         AS \"Cell\",\n  mcm.code                        AS \"Mode\",\n  COALESCE(mp.code, '—')          AS \"Polarity\",\n  mce.occurred_at                 AS \"Connected Since\",\n  $__timeTo() - mce.occurred_at   AS \"Duration\",\n  ROUND(m.power::numeric,   2)    AS \"Power (mW)\",\n  ROUND(m.voltage::numeric, 3)    AS \"Voltage (V)\",\n  ROUND(m.current::numeric, 4)    AS \"Current (A)\"\nFROM (\n  SELECT DISTINCT ON (mpp_tracking_slot_id)\n    mpp_tracking_slot_id, solar_cell_id, mode_id, polarity_id, occurred_at, event_type\n  FROM mpp_connection_event\n  WHERE occurred_at <= $__timeTo()\n  ORDER BY mpp_tracking_slot_id, occurred_at DESC\n) mce\nJOIN mpp_tracking_slot   s   ON s.id   = mce.mpp_tracking_slot_id\nJOIN mpp_tracker         t   ON t.id   = s.mpp_tracker_id\nJOIN solar_cell          sc  ON sc.id  = mce.solar_cell_id\nJOIN mpp_connection_mode mcm ON mcm.id = mce.mode_id\nLEFT JOIN mpp_polarity   mp  ON mp.id  = mce.polarity_id\nJOIN LATERAL (\n  SELECT power, voltage, current\n  FROM mpp_measurement\n  WHERE mpp_tracking_slot_id = mce.mpp_tracking_slot_id\n    AND time <= $__timeTo()\n  ORDER BY time DESC LIMIT 1\n) m ON true\nWHERE mce.event_type = 'connection'\nORDER BY t.name, s.slot_code",
           "format": "table"
         }
       ],
       "options": {
         "cellHeight": "sm",
-        "footer": { "show": false, "reducer": ["sum"], "countRows": false, "fields": "" },
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false,
+          "fields": ""
+        },
         "showHeader": true,
-        "sortBy": [{ "desc": false, "displayName": "Tracker" }]
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Tracker"
+          }
+        ]
       },
       "fieldConfig": {
         "defaults": {
           "custom": {
             "align": "left",
-            "cellOptions": { "type": "auto" },
+            "cellOptions": {
+              "type": "auto"
+            },
             "filterable": true,
             "inspect": false
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "green", "value": null }]
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
           }
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Power (mW)" },
+            "matcher": {
+              "id": "byName",
+              "options": "Power (mW)"
+            },
             "properties": [
-              { "id": "unit", "value": "mwatt" },
-              { "id": "color", "value": { "mode": "thresholds" } },
+              {
+                "id": "unit",
+                "value": "mwatt"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
               {
                 "id": "thresholds",
                 "value": {
                   "mode": "absolute",
                   "steps": [
-                    { "color": "#5794F2", "value": null },
-                    { "color": "#73BF69", "value": 1 },
-                    { "color": "#FF9830", "value": 50 },
-                    { "color": "#F2495C", "value": 100 }
+                    {
+                      "color": "#5794F2",
+                      "value": null
+                    },
+                    {
+                      "color": "#73BF69",
+                      "value": 1
+                    },
+                    {
+                      "color": "#FF9830",
+                      "value": 50
+                    },
+                    {
+                      "color": "#F2495C",
+                      "value": 100
+                    }
                   ]
                 }
               },
-              { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "gradient" } }
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "gradient"
+                }
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Voltage (V)" },
+            "matcher": {
+              "id": "byName",
+              "options": "Voltage (V)"
+            },
             "properties": [
-              { "id": "unit", "value": "volt" }
+              {
+                "id": "unit",
+                "value": "volt"
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Current (A)" },
+            "matcher": {
+              "id": "byName",
+              "options": "Current (A)"
+            },
             "properties": [
-              { "id": "unit", "value": "amp" }
+              {
+                "id": "unit",
+                "value": "amp"
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Connected Since" },
+            "matcher": {
+              "id": "byName",
+              "options": "Connected Since"
+            },
             "properties": [
-              { "id": "unit", "value": "dateTimeAsIso" },
-              { "id": "custom.width", "value": 180 }
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "custom.width",
+                "value": 180
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Duration" },
+            "matcher": {
+              "id": "byName",
+              "options": "Duration"
+            },
             "properties": [
-              { "id": "custom.width", "value": 130 }
+              {
+                "id": "custom.width",
+                "value": 130
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Cell" },
+            "matcher": {
+              "id": "byName",
+              "options": "Cell"
+            },
             "properties": [
-              { "id": "custom.width", "value": 160 }
+              {
+                "id": "custom.width",
+                "value": 160
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Tracker" },
+            "matcher": {
+              "id": "byName",
+              "options": "Tracker"
+            },
             "properties": [
-              { "id": "custom.width", "value": 130 }
+              {
+                "id": "custom.width",
+                "value": 130
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Slot" },
+            "matcher": {
+              "id": "byName",
+              "options": "Slot"
+            },
             "properties": [
-              { "id": "custom.width", "value": 80 }
+              {
+                "id": "custom.width",
+                "value": 80
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Mode" },
+            "matcher": {
+              "id": "byName",
+              "options": "Mode"
+            },
             "properties": [
-              { "id": "custom.width", "value": 110 }
+              {
+                "id": "custom.width",
+                "value": 110
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Polarity" },
+            "matcher": {
+              "id": "byName",
+              "options": "Polarity"
+            },
             "properties": [
-              { "id": "custom.width", "value": 80 }
+              {
+                "id": "custom.width",
+                "value": 80
+              }
             ]
           }
         ]
@@ -427,9 +779,17 @@
   ],
   "refresh": "30s",
   "schemaVersion": 39,
-  "tags": ["overview", "system"],
-  "templating": { "list": [] },
-  "time": { "from": "now-24h", "to": "now" },
+  "tags": [
+    "overview",
+    "system"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "browser",
   "title": "System Overview",
