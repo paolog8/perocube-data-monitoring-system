@@ -253,7 +253,7 @@
       ],
       "options": {
         "tooltip": { "mode": "multi", "sort": "none" },
-        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": false }
       },
       "fieldConfig": {
         "defaults": {
@@ -285,7 +285,8 @@
             "properties": [
               { "id": "color", "value": { "mode": "fixed", "fixedColor": "#FF9830" } },
               { "id": "unit", "value": "wm2" },
-              { "id": "custom.axisLabel", "value": "Irradiance (W/m²)" }
+              { "id": "custom.axisLabel", "value": "Irradiance (W/m²)" },
+              { "id": "custom.axisColorMode", "value": "series" }
             ]
           },
           {
@@ -294,7 +295,8 @@
               { "id": "color", "value": { "mode": "fixed", "fixedColor": "#F2495C" } },
               { "id": "unit", "value": "celsius" },
               { "id": "custom.axisPlacement", "value": "right" },
-              { "id": "custom.axisLabel", "value": "Temperature (°C)" }
+              { "id": "custom.axisLabel", "value": "Temperature (°C)" },
+              { "id": "custom.axisColorMode", "value": "series" }
             ]
           }
         ]
