@@ -108,6 +108,8 @@ services:
     volumes:
       - /nfs/qumulo-a/grafana01/grafana/data:/var/lib/grafana
       - /nfs/qumulo-a/grafana01/grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/repo-dashboards:ro
+      - ./grafana/provisioning/dashboards/repo-dashboards.yml:/etc/grafana/provisioning/dashboards/repo-dashboards.yml:ro
     depends_on:
       timescaledb:
         condition: service_healthy
