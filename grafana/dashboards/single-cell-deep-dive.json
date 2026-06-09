@@ -169,7 +169,7 @@
             "type": "postgres",
             "uid": "ffk21zlrlrqioe"
           },
-          "rawSql": "SELECT MAX(power_mw) AS value\nFROM mpp_measurements_for_cell('$cell', $__timeFrom(), $__timeTo())",
+          "rawSql": "SELECT MAX(power_mw) AS value\nFROM mpp_measurements_for_cell('$cell', $__timeFrom(), $__timeTo(), INTERVAL '1 millisecond' * $__interval_ms)",
           "format": "table"
         }
       ],
@@ -230,7 +230,7 @@
             "type": "postgres",
             "uid": "ffk21zlrlrqioe"
           },
-          "rawSql": "SELECT AVG(power_mw) AS value\nFROM mpp_measurements_for_cell('$cell', $__timeFrom(), $__timeTo())",
+          "rawSql": "SELECT AVG(power_mw) AS value\nFROM mpp_measurements_for_cell('$cell', $__timeFrom(), $__timeTo(), INTERVAL '1 millisecond' * $__interval_ms)",
           "format": "table"
         }
       ],
@@ -291,7 +291,7 @@
             "type": "postgres",
             "uid": "ffk21zlrlrqioe"
           },
-          "rawSql": "WITH p AS (\n  SELECT time_bucket('5 minutes', measured_at) AS t, AVG(power_mw) AS power_mw\n  FROM mpp_measurements_for_cell('$cell', $__timeFrom(), $__timeTo())\n  WHERE mode_code = 'mpp_tracking'\n  GROUP BY 1\n),\nirr AS (\n  SELECT time_bucket('5 minutes', time) AS t, AVG(irradiance) AS irr\n  FROM irradiance_measurement\n  WHERE $__timeFilter(time) AND irradiance > $min_irr\n  GROUP BY 1\n),\narea AS (SELECT area_cm2 FROM solar_cell WHERE name = '$cell')\nSELECT AVG(1000.0 * p.power_mw / NULLIF(irr.irr * a.area_cm2, 0)) AS value\nFROM p JOIN irr ON p.t = irr.t CROSS JOIN area a",
+          "rawSql": "WITH p AS (\n  SELECT mfc.measured_at AS t, mfc.power_mw\n  FROM mpp_measurements_for_cell('$cell', $__timeFrom(), $__timeTo(), INTERVAL '1 millisecond' * $__interval_ms) mfc\n  WHERE mfc.mode_code = 'mpp_tracking'\n),\nirr AS (\n  SELECT time_bucket(INTERVAL '1 millisecond' * $__interval_ms, time) AS t, AVG(irradiance) AS irr\n  FROM irradiance_measurement\n  WHERE $__timeFilter(time) AND irradiance > $min_irr\n  GROUP BY 1\n),\narea AS (SELECT area_cm2 FROM solar_cell WHERE name = '$cell')\nSELECT AVG(1000.0 * p.power_mw / NULLIF(irr.irr * a.area_cm2, 0)) AS value\nFROM p JOIN irr ON p.t = irr.t CROSS JOIN area a",
           "format": "table"
         }
       ],
@@ -352,7 +352,7 @@
             "type": "postgres",
             "uid": "ffk21zlrlrqioe"
           },
-          "rawSql": "WITH p AS (\n  SELECT time_bucket('5 minutes', measured_at) AS t, AVG(power_mw) AS power_mw\n  FROM mpp_measurements_for_cell('$cell', $__timeFrom(), $__timeTo())\n  WHERE mode_code = 'mpp_tracking'\n  GROUP BY 1\n),\nirr AS (\n  SELECT time_bucket('5 minutes', time) AS t, AVG(irradiance) AS irr\n  FROM irradiance_measurement\n  WHERE $__timeFilter(time) AND irradiance > $min_irr\n  GROUP BY 1\n),\narea AS (SELECT area_cm2 FROM solar_cell WHERE name = '$cell')\nSELECT MAX(1000.0 * p.power_mw / NULLIF(irr.irr * a.area_cm2, 0)) AS value\nFROM p JOIN irr ON p.t = irr.t CROSS JOIN area a",
+          "rawSql": "WITH p AS (\n  SELECT mfc.measured_at AS t, mfc.power_mw\n  FROM mpp_measurements_for_cell('$cell', $__timeFrom(), $__timeTo(), INTERVAL '1 millisecond' * $__interval_ms) mfc\n  WHERE mfc.mode_code = 'mpp_tracking'\n),\nirr AS (\n  SELECT time_bucket(INTERVAL '1 millisecond' * $__interval_ms, time) AS t, AVG(irradiance) AS irr\n  FROM irradiance_measurement\n  WHERE $__timeFilter(time) AND irradiance > $min_irr\n  GROUP BY 1\n),\narea AS (SELECT area_cm2 FROM solar_cell WHERE name = '$cell')\nSELECT MAX(1000.0 * p.power_mw / NULLIF(irr.irr * a.area_cm2, 0)) AS value\nFROM p JOIN irr ON p.t = irr.t CROSS JOIN area a",
           "format": "table"
         }
       ],
@@ -638,7 +638,7 @@
             "type": "postgres",
             "uid": "ffk21zlrlrqioe"
           },
-          "rawSql": "WITH p AS (\n  SELECT\n    time_bucket(INTERVAL '1 millisecond' * $__interval_ms, measured_at) AS t,\n    AVG(power_mw) AS power_mw\n  FROM mpp_measurements_for_cell('$cell', $__timeFrom(), $__timeTo())\n  WHERE mode_code = 'mpp_tracking'\n  GROUP BY 1\n),\nirr AS (\n  SELECT\n    time_bucket(INTERVAL '1 millisecond' * $__interval_ms, time) AS t,\n    AVG(irradiance) AS irr\n  FROM irradiance_measurement\n  WHERE $__timeFilter(time)\n    AND irradiance > $min_irr\n  GROUP BY 1\n),\narea AS (SELECT area_cm2 FROM solar_cell WHERE name = '$cell')\nSELECT\n  p.t AS time,\n  1000.0 * p.power_mw / NULLIF(irr.irr * a.area_cm2, 0) AS \"PCE (%)\"\nFROM p\nJOIN irr ON p.t = irr.t\nCROSS JOIN area a\nORDER BY 1",
+          "rawSql": "WITH p AS (\n  SELECT mfc.measured_at AS t, mfc.power_mw\n  FROM mpp_measurements_for_cell('$cell', $__timeFrom(), $__timeTo(), INTERVAL '1 millisecond' * $__interval_ms) mfc\n  WHERE mfc.mode_code = 'mpp_tracking'\n),\nirr AS (\n  SELECT\n    time_bucket(INTERVAL '1 millisecond' * $__interval_ms, time) AS t,\n    AVG(irradiance) AS irr\n  FROM irradiance_measurement\n  WHERE $__timeFilter(time)\n    AND irradiance > $min_irr\n  GROUP BY 1\n),\narea AS (SELECT area_cm2 FROM solar_cell WHERE name = '$cell')\nSELECT\n  p.t AS time,\n  1000.0 * p.power_mw / NULLIF(irr.irr * a.area_cm2, 0) AS \"PCE (%)\"\nFROM p\nJOIN irr ON p.t = irr.t\nCROSS JOIN area a\nORDER BY 1",
           "format": "time_series"
         }
       ],
