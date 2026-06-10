@@ -418,15 +418,15 @@
           "type": "postgres",
           "uid": "ffk21zlrlrqioe"
         },
-        "definition": "SELECT name FROM solar_cell ORDER BY name",
-        "query": "SELECT name FROM solar_cell ORDER BY name",
+        "definition": "SELECT __text, __value FROM (\n  SELECT 0 AS ord, '— none (select cells below) —' AS __text, '__none__' AS __value\n  UNION ALL\n  SELECT 1, name, name FROM solar_cell\n) s\nORDER BY ord, __text",
+        "query": "SELECT __text, __value FROM (\n  SELECT 0 AS ord, '— none (select cells below) —' AS __text, '__none__' AS __value\n  UNION ALL\n  SELECT 1, name, name FROM solar_cell\n) s\nORDER BY ord, __text",
         "refresh": 1,
-        "sort": 1,
+        "sort": 0,
         "multi": true,
         "includeAll": true,
         "current": {
-          "text": [],
-          "value": []
+          "text": ["— none (select cells below) —"],
+          "value": ["__none__"]
         },
         "options": [],
         "hide": 0
