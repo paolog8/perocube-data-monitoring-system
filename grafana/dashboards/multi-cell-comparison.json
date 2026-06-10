@@ -417,7 +417,10 @@
         "sort": 1,
         "multi": true,
         "includeAll": true,
-        "current": {},
+        "current": {
+          "text": [],
+          "value": []
+        },
         "options": [],
         "hide": 0
       },
