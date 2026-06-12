@@ -57,7 +57,11 @@
           "displayMode": "table",
           "placement": "right",
           "showLegend": true,
-          "calcs": ["mean", "max", "lastNotNull"]
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
         }
       },
       "fieldConfig": {
@@ -223,7 +227,9 @@
       "options": {
         "reduceOptions": {
           "values": true,
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": ""
         },
         "orientation": "horizontal",
@@ -284,7 +290,9 @@
         "cellHeight": "sm",
         "footer": {
           "show": false,
-          "reducer": ["sum"],
+          "reducer": [
+            "sum"
+          ],
           "countRows": false,
           "fields": ""
         },
@@ -404,6 +412,27 @@
   "templating": {
     "list": [
       {
+        "name": "experiment",
+        "label": "Experiment",
+        "type": "query",
+        "datasource": {
+          "type": "postgres",
+          "uid": "ffk21zlrlrqioe"
+        },
+        "definition": "SELECT __text, __value FROM (\n  SELECT 0 AS ord, '(all experiments)' AS __text, '__all__' AS __value\n  UNION ALL\n  SELECT 1, name, name FROM experiment\n) e\nORDER BY ord, __text",
+        "refresh": 1,
+        "sort": 0,
+        "multi": false,
+        "includeAll": false,
+        "current": {
+          "text": "(all experiments)",
+          "value": "__all__"
+        },
+        "options": [],
+        "hide": 0,
+        "query": "SELECT __text, __value FROM (\n  SELECT 0 AS ord, '(all experiments)' AS __text, '__all__' AS __value\n  UNION ALL\n  SELECT 1, name, name FROM experiment\n) e\nORDER BY ord, __text"
+      },
+      {
         "name": "cell",
         "label": "Solar Cells",
         "type": "query",
@@ -411,15 +440,19 @@
           "type": "postgres",
           "uid": "ffk21zlrlrqioe"
         },
-        "definition": "SELECT __text, __value FROM (\n  SELECT 0 AS ord, '— none (select cells below) —' AS __text, '__none__' AS __value\n  UNION ALL\n  SELECT 1, name, name FROM solar_cell\n) s\nORDER BY ord, __text",
-        "query": "SELECT __text, __value FROM (\n  SELECT 0 AS ord, '— none (select cells below) —' AS __text, '__none__' AS __value\n  UNION ALL\n  SELECT 1, name, name FROM solar_cell\n) s\nORDER BY ord, __text",
+        "definition": "SELECT __text, __value FROM (\n  SELECT 0 AS ord, '— none (select cells below) —' AS __text, '__none__' AS __value\n  UNION ALL\n  SELECT 1, sc.name, sc.name FROM solar_cell sc\n  WHERE '$experiment' = '__all__'\n     OR sc.id IN (\n       SELECT sce.solar_cell_id\n       FROM solar_cell_experiment sce\n       JOIN experiment e ON e.id = sce.experiment_id\n       WHERE e.name = '$experiment')\n) s\nORDER BY ord, __text",
+        "query": "SELECT __text, __value FROM (\n  SELECT 0 AS ord, '— none (select cells below) —' AS __text, '__none__' AS __value\n  UNION ALL\n  SELECT 1, sc.name, sc.name FROM solar_cell sc\n  WHERE '$experiment' = '__all__'\n     OR sc.id IN (\n       SELECT sce.solar_cell_id\n       FROM solar_cell_experiment sce\n       JOIN experiment e ON e.id = sce.experiment_id\n       WHERE e.name = '$experiment')\n) s\nORDER BY ord, __text",
         "refresh": 1,
         "sort": 0,
         "multi": true,
         "includeAll": true,
         "current": {
-          "text": ["— none (select cells below) —"],
-          "value": ["__none__"]
+          "text": [
+            "— none (select cells below) —"
+          ],
+          "value": [
+            "__none__"
+          ]
         },
         "options": [],
         "hide": 0

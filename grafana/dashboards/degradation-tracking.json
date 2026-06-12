@@ -12,6 +12,22 @@
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
         "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "postgres",
+          "uid": "ffk21zlrlrqioe"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "#FF9830",
+        "name": "Connection events",
+        "target": {
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  e.occurred_at AS time,\n  sc.name || ': ' || e.event_type || ' — ' || t.name || '/' || s.slot_code ||\n    COALESCE(' (' || mcm.code || COALESCE(', ' || mp.code, '') || ')', '') AS text,\n  e.event_type AS tags\nFROM mpp_connection_event e\nJOIN solar_cell sc ON sc.id = e.solar_cell_id\nJOIN mpp_tracking_slot s ON s.id = e.mpp_tracking_slot_id\nJOIN mpp_tracker t ON t.id = s.mpp_tracker_id\nLEFT JOIN mpp_connection_mode mcm ON mcm.id = e.mode_id\nLEFT JOIN mpp_polarity mp ON mp.id = e.polarity_id\nWHERE sc.name IN (${cell:sqlstring})\n  AND $__timeFilter(e.occurred_at)",
+          "refId": "Anno"
+        }
       }
     ]
   },
@@ -57,7 +73,11 @@
           "displayMode": "table",
           "placement": "right",
           "showLegend": true,
-          "calcs": ["mean", "min", "lastNotNull"]
+          "calcs": [
+            "mean",
+            "min",
+            "lastNotNull"
+          ]
         }
       },
       "fieldConfig": {
@@ -291,7 +311,9 @@
         "cellHeight": "sm",
         "footer": {
           "show": false,
-          "reducer": ["sum"],
+          "reducer": [
+            "sum"
+          ],
           "countRows": false,
           "fields": ""
         },
@@ -425,8 +447,12 @@
         "multi": true,
         "includeAll": true,
         "current": {
-          "text": ["— none (select cells below) —"],
-          "value": ["__none__"]
+          "text": [
+            "— none (select cells below) —"
+          ],
+          "value": [
+            "__none__"
+          ]
         },
         "options": [],
         "hide": 0

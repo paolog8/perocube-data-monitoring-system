@@ -800,6 +800,141 @@
           }
         ]
       }
+    },
+    {
+      "id": 9,
+      "title": "Ingestion Runs (edge)",
+      "description": "Recent ingestion_log entries replicated from the measurement PC. A 'failed' row means an export folder did not ingest — fix it on the edge and re-run.",
+      "type": "table",
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "ffk21zlrlrqioe"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "ffk21zlrlrqioe"
+          },
+          "format": "table",
+          "rawSql": "SELECT\n  started_at    AS \"Started\",\n  folder_name   AS \"Folder / File\",\n  status        AS \"Status\",\n  completed_at  AS \"Completed\",\n  rows_inserted AS \"Rows\",\n  COALESCE(error_message, '') AS \"Error\"\nFROM ingestion_log\nORDER BY started_at DESC\nLIMIT 20"
+        }
+      ],
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false,
+          "fields": ""
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "completed": {
+                  "text": "completed",
+                  "color": "#73BF69",
+                  "index": 0
+                },
+                "failed": {
+                  "text": "failed",
+                  "color": "#F2495C",
+                  "index": 1
+                },
+                "started": {
+                  "text": "started",
+                  "color": "#FADE2A",
+                  "index": 2
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Started"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "custom.width",
+                "value": 190
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Completed"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "custom.width",
+                "value": 190
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          }
+        ]
+      }
     }
   ],
   "refresh": "30s",
