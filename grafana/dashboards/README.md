@@ -38,13 +38,19 @@ that time*.
 | Data Freshness (stat) | Age of the newest MPP / irradiance / temperature row. Yellow ≥ 48 h, red ≥ 14 d — tuned to the bulk-export cadence (data arrives in periodic exports, not streaming; hours-to-days of age is normal). If one stream lags the others, that pipeline stage is stalled. |
 | Irradiance / Cell Temperature (stats) | Latest 5-min average with 24 h sparkline. Temperature filters the `-999` sensor-error sentinel. Temperature is **cell temperature**, not ambient. |
 | Power per Cell (timeseries) | Per-cell power, 5-min buckets. Measurements attributed to cells via connection intervals (`LEAD` over `mpp_connection_event`, same pattern as `mpp_measurements_for_cell`). A missing/flat trace shows immediately which cell stopped producing. |
-| Irradiance & Cell Temperature (timeseries) | Dual axis: W/m² left, °C right |
+| Irradiance & Cell Temperature (timeseries) | Dual axis: W/m² left, °C right. Stacked directly below Power per Cell (both full-width, same time axis) so production can be compared against irradiance at a glance. The `Cell Temperature` variable toggles the temperature series on/off (`Show`/`Hide`) when only irradiance vs. power matters. |
 | Active Connections (table) | One row per connected slot: tracker, slot, cell, mode, polarity, connected-since, duration, latest P/V/I |
 | Ingestion Runs (table) | Recent `ingestion_log` rows replicated from the measurement PC — edge ingestion failures are visible on the hub |
 
 > The earlier "Total Power Output" / "Total Power Over Time" panels were removed after
 > scientist feedback: summing power across heterogeneous test cells (different areas,
 > technologies, connection modes) has no scientific meaning.
+
+**`Cell Temperature` toggle (System Overview):** a `custom` template variable
+(`show_temperature`, values `show`/`hide`) gates the temperature target's `WHERE`
+clause with `AND '$show_temperature' = 'show'`. When set to `hide`, the query returns
+zero rows, so the series and its right-hand axis simply don't render — no panel
+duplication needed.
 
 ## Single Cell Deep-Dive
 
