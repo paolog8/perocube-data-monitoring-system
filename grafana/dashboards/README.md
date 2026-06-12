@@ -87,19 +87,24 @@ PCE — not raw power — is the fair comparison metric because it is area-norma
 ## Degradation Tracking
 
 Variables: `cell` (multi-select, defaults to none), `min_irr` (default 50),
-`baseline_hours` (default 24 — length of the reference window), `degradation_threshold`
-(default 80 — i.e. T80). Default time range starts 2020-01-01 so the full lifetime is
-visible.
+`baseline_hours` (default 24 — fallback reference window, see below),
+`degradation_threshold` (default 80 — i.e. T80). Default time range starts 2020-01-01
+so the full lifetime is visible.
 
-- **Normalized PCE**: each cell normalized to 100 % = its own average PCE during
-  `[first_connection, first_connection + baseline_hours)`. The baseline is computed from
+- **Normalized PCE**: each cell normalized to 100 % = its **registered `initial_pce`**
+  (`solar_cell.initial_pce`, the lab-measured efficiency under standard test
+  conditions) — the scientifically correct reference point. For cells with no
+  `initial_pce` on record, falls back to the cell's own average outdoor PCE during
+  `[first_connection, first_connection + baseline_hours)`, computed via
   `mpp_connection_history()` + a fixed-window function call, *independent of the
-  dashboard time range*, so zooming in does not lose the baseline.
+  dashboard time range*, so zooming in does not lose the reference.
 - **Irradiance & Cell Temperature**: fleet-wide context panel — check whether an apparent
   PCE drop is just a weather period.
-- **Degradation Summary** table: baseline window, baseline PCE, latest normalized
-  performance, linear degradation rate (%/year via `regr_slope`), and an extrapolated
-  T`$degradation_threshold` date (blank if the slope is non-negative).
+- **Degradation Summary** table: reference PCE, **Reference Source** (`Initial PCE
+  (lab)` or `Outdoor baseline (N h)`, so it's clear which cells are missing a
+  registered `initial_pce`), latest normalized performance, linear degradation rate
+  (%/year via `regr_slope`), and an extrapolated T`$degradation_threshold` date (blank
+  if the slope is non-negative).
 
 ---
 
