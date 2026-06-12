@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Live system overview — active connections, power output, and environmental conditions",
+  "description": "Live system overview — active connections, per-cell power, data freshness, and environmental conditions",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 2,
@@ -101,8 +101,8 @@
     },
     {
       "id": 2,
-      "title": "Total Power Output",
-      "description": "Sum of power across all tracking slots — sparkline shows last 24 h",
+      "title": "Data Freshness",
+      "description": "Age of the most recent MPP, irradiance, and temperature data at the end of the selected time range. Large values mean the export/ingestion pipeline or SymmetricDS replication has stalled. Data arrives in periodic bulk exports, so an age of hours to a few days is normal.",
       "type": "stat",
       "gridPos": {
         "h": 4,
@@ -121,8 +121,26 @@
             "type": "postgres",
             "uid": "ffk21zlrlrqioe"
           },
-          "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  SUM(power) AS \"Total Power\"\nFROM mpp_measurement\nWHERE $__timeFilter(time)\nGROUP BY 1\nORDER BY 1",
-          "format": "time_series"
+          "rawSql": "SELECT EXTRACT(EPOCH FROM ($__timeTo() - MAX(time))) AS \"MPP\"\nFROM mpp_measurement\nWHERE time <= $__timeTo()",
+          "format": "table"
+        },
+        {
+          "refId": "B",
+          "datasource": {
+            "type": "postgres",
+            "uid": "ffk21zlrlrqioe"
+          },
+          "rawSql": "SELECT EXTRACT(EPOCH FROM ($__timeTo() - MAX(time))) AS \"Irradiance\"\nFROM irradiance_measurement\nWHERE time <= $__timeTo()",
+          "format": "table"
+        },
+        {
+          "refId": "C",
+          "datasource": {
+            "type": "postgres",
+            "uid": "ffk21zlrlrqioe"
+          },
+          "rawSql": "SELECT EXTRACT(EPOCH FROM ($__timeTo() - MAX(time))) AS \"Temperature\"\nFROM temperature_measurement\nWHERE time <= $__timeTo()",
+          "format": "table"
         }
       ],
       "options": {
@@ -133,30 +151,37 @@
           ],
           "fields": ""
         },
-        "orientation": "auto",
-        "textMode": "auto",
-        "wideLayout": true,
+        "orientation": "horizontal",
+        "textMode": "value_and_name",
+        "wideLayout": false,
         "colorMode": "background",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "center"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "fixed",
-            "fixedColor": "#FF9830"
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#FF9830",
+                "color": "#73BF69",
                 "value": null
+              },
+              {
+                "color": "#FADE2A",
+                "value": 172800
+              },
+              {
+                "color": "#F2495C",
+                "value": 1209600
               }
             ]
           },
-          "unit": "mwatt",
+          "unit": "dtdurations",
           "decimals": 1
         },
         "overrides": []
@@ -301,8 +326,8 @@
     },
     {
       "id": 5,
-      "title": "Total Power Over Time",
-      "description": "Sum of power across all tracking slots, binned to 5-minute buckets",
+      "title": "Power per Cell",
+      "description": "Average power of each connected cell, 5-minute buckets. Measurements are attributed to cells via their connection intervals, so a missing or flat trace immediately shows which cell stopped producing.",
       "type": "timeseries",
       "gridPos": {
         "h": 9,
@@ -321,41 +346,41 @@
             "type": "postgres",
             "uid": "ffk21zlrlrqioe"
           },
-          "rawSql": "SELECT\n  time_bucket('5 minutes', time) AS time,\n  SUM(power) AS \"Total Power\"\nFROM mpp_measurement\nWHERE $__timeFilter(time)\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "WITH connection_intervals AS (\n  SELECT\n    e.mpp_tracking_slot_id,\n    e.solar_cell_id,\n    e.event_type,\n    e.occurred_at AS connected_at,\n    LEAD(e.occurred_at) OVER (\n      PARTITION BY e.mpp_tracking_slot_id ORDER BY e.occurred_at\n    ) AS next_event_at\n  FROM mpp_connection_event e\n)\nSELECT\n  time_bucket('5 minutes', m.time) AS time,\n  sc.name AS metric,\n  AVG(m.power) AS \"Power\"\nFROM connection_intervals ci\nJOIN solar_cell sc ON sc.id = ci.solar_cell_id\nJOIN mpp_measurement m\n  ON m.mpp_tracking_slot_id = ci.mpp_tracking_slot_id\n AND m.time >= ci.connected_at\n AND (ci.next_event_at IS NULL OR m.time < ci.next_event_at)\nWHERE ci.event_type = 'connection'\n  AND $__timeFilter(m.time)\nGROUP BY 1, 2\nORDER BY 1, 2",
           "format": "time_series"
         }
       ],
       "options": {
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
+          "mode": "multi",
+          "sort": "desc"
         },
         "legend": {
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": false
+          "showLegend": true,
+          "calcs": []
         }
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "fixed",
-            "fixedColor": "#73BF69"
+            "mode": "palette-classic"
           },
           "custom": {
             "axisLabel": "Power (mW)",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 25,
-            "gradientMode": "opacity",
+            "fillOpacity": 5,
+            "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
