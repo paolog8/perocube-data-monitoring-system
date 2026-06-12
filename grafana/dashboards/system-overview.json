@@ -29,7 +29,7 @@
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 0
       },
@@ -106,9 +106,9 @@
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 24,
-        "x": 0,
-        "y": 4
+        "w": 6,
+        "x": 6,
+        "y": 0
       },
       "datasource": {
         "type": "postgres",
@@ -194,8 +194,8 @@
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 12,
         "y": 0
       },
       "datasource": {
@@ -257,8 +257,8 @@
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 18,
         "y": 0
       },
       "datasource": {
@@ -333,7 +333,7 @@
         "h": 9,
         "w": 15,
         "x": 0,
-        "y": 8
+        "y": 4
       },
       "datasource": {
         "type": "postgres",
@@ -419,7 +419,7 @@
         "h": 9,
         "w": 9,
         "x": 15,
-        "y": 8
+        "y": 4
       },
       "datasource": {
         "type": "postgres",
@@ -566,7 +566,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 13
       },
       "collapsed": false,
       "panels": []
@@ -580,7 +580,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 14
       },
       "datasource": {
         "type": "postgres",
@@ -810,7 +810,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 23
       },
       "datasource": {
         "type": "postgres",
