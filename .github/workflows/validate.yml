@@ -1,0 +1,51 @@
+name: Validate
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Grafana dashboard JSON
+        run: |
+          for f in grafana/dashboards/*.json; do
+            python3 -m json.tool "$f" > /dev/null || { echo "Invalid JSON: $f"; exit 1; }
+          done
+          echo "All dashboard JSON files are valid."
+
+      - name: Check dashboard UIDs are unique and set
+        run: |
+          python3 - <<'EOF'
+          import json, glob, sys
+          uids = {}
+          for f in glob.glob('grafana/dashboards/*.json'):
+              uid = json.load(open(f)).get('uid')
+              if not uid:
+                  sys.exit(f"{f}: missing uid")
+              if uid in uids:
+                  sys.exit(f"duplicate uid {uid}: {f} and {uids[uid]}")
+              uids[uid] = f
+          print("UIDs OK:", *uids)
+          EOF
+
+      - name: Check outdoor migration numbering (append-only, no gaps beyond known V13)
+        run: |
+          python3 - <<'EOF'
+          import re, glob, sys
+          versions = sorted(int(re.match(r'V(\d+)__', f.split('/')[-1]).group(1))
+                            for f in glob.glob('db/outdoor_migrations/V*.sql'))
+          dupes = {v for v in versions if versions.count(v) > 1}
+          if dupes:
+              sys.exit(f"duplicate migration versions: {dupes}")
+          # V13 is a known historical gap (upstream never had it)
+          expected = [v for v in range(versions[0], versions[-1] + 1) if v != 13]
+          missing = set(expected) - set(versions)
+          if missing:
+              sys.exit(f"missing migration versions: {sorted(missing)}")
+          print(f"Migrations OK: V{versions[0]}–V{versions[-1]} ({len(versions)} files)")
+          EOF
