@@ -40,6 +40,7 @@ that time*.
 | Power per Cell (timeseries) | Per-cell power, 5-min buckets. Measurements attributed to cells via connection intervals (`LEAD` over `mpp_connection_event`, same pattern as `mpp_measurements_for_cell`). A missing/flat trace shows immediately which cell stopped producing. |
 | Irradiance & Cell Temperature (timeseries) | Dual axis: W/m² left, °C right |
 | Active Connections (table) | One row per connected slot: tracker, slot, cell, mode, polarity, connected-since, duration, latest P/V/I |
+| Ingestion Runs (table) | Recent `ingestion_log` rows replicated from the measurement PC — edge ingestion failures are visible on the hub |
 
 > The earlier "Total Power Output" / "Total Power Over Time" panels were removed after
 > scientist feedback: summing power across heterogeneous test cells (different areas,
@@ -52,7 +53,12 @@ Variables: `cell` (single-select, `SELECT name FROM solar_cell ORDER BY name`),
 
 Panels: Cell Details table (type, structure, area, initial PCE, manufacturer/owner,
 PVcomB ID, NOMAD link), KPI stats (peak/avg power, peak/avg PCE), Power Over Time,
-dual-axis Voltage & Current, and PCE over time.
+dual-axis Voltage & Current, PCE over time, and Daily Energy Yield (mWh/cm²/day,
+`mpp_tracking` periods only, hourly server-side buckets summed per day).
+
+**Connection-event annotations:** connect/disconnect events for the selected cell are
+drawn as vertical markers (also on Degradation Tracking, for all selected cells), so
+steps in power/PCE curves can be attributed to physical interventions.
 
 Data access goes through `mpp_measurements_for_cell(cell, from, to, bucket)` — see
 [Performance rules](#performance-rules). The function returns
@@ -60,7 +66,9 @@ Data access goes through `mpp_measurements_for_cell(cell, from, to, bucket)` —
 
 ## Multi-Cell Comparison
 
-Variables: `cell` (multi-select, includeAll, defaults to a "none" sentinel — see
+Variables: `experiment` (single-select with an `(all experiments)` sentinel; filters
+the cell list via `solar_cell_experiment` so a whole experiment can be selected in one
+click), `cell` (multi-select, includeAll, defaults to a "none" sentinel — see
 [Multi-select default](#multi-select-cell-variable-default)), `min_irr` (textbox,
 default 50).
 
