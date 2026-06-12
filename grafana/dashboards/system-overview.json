@@ -413,7 +413,7 @@
     {
       "id": 6,
       "title": "Irradiance & Cell Temperature",
-      "description": "Irradiance (W/m², left axis) and cell temperature (°C, right axis, toggle via $show_temperature)",
+      "description": "Irradiance (W/m², left axis) and cell temperature (°C, right axis, toggle via $show_temperature) averages",
       "type": "timeseries",
       "gridPos": {
         "h": 9,
