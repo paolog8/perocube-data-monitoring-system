@@ -21,6 +21,8 @@ directory.
 | [Single Cell Deep-Dive](#single-cell-deep-dive) | — | "How is *this* cell performing?" |
 | [Multi-Cell Comparison](#multi-cell-comparison) | — | "Which of these cells performs best, area-normalized?" |
 | [Degradation Tracking](#degradation-tracking) | — | "How fast are my cells degrading? When do they hit T80?" |
+| Environmental Conditions | `outdoor-environmental-conditions` | "What were the conditions? Per-sensor irradiance, cell temperature, daily insolation" |
+| Connection History & Coverage | `outdoor-connection-history` | "When was this cell mounted where, and which periods have data?" |
 
 ---
 
@@ -161,12 +163,10 @@ instantly. "All" stays available in the dropdown.
 4. Check it against the [performance rules](#performance-rules) above.
 5. Commit. Provisioning picks it up within 30 s.
 
-## Planned dashboards (in priority order)
+## Ideas for future dashboards
 
-1. **Environmental Conditions** — multi-sensor irradiance + cell temperature deep-dive
-   with sensor location labels. (Remember: temperature sensors measure *cell*
-   temperature.)
-2. **Connection History & Data Coverage** — `mpp_connection_history(cell_name)` table
-   (slot, tracker, mode, connected/disconnected, duration), fleet-wide coverage summary
-   (computed per the performance rules, not via `mpp_data_coverage`), and a timeline of
-   connect/disconnect events.
+- **Grafana alerting** on the Data Freshness query (notify when MPP data age exceeds the
+  export cadence) — highest operational value.
+- Connection-state **timeline** panel (state-timeline of slot occupancy over time).
+- Spectral measurement visualization (`spectral_measurement` arrays are currently
+  unused in dashboards).
