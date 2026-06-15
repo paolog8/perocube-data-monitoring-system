@@ -33,7 +33,6 @@ Measurement PC (edge)                      This server (hub)
 | `flyway-outdoor` | Migrations for `outdoor_monitoring` from `db/outdoor_migrations/` (in git) |
 | `flyway-sym-config` | Applies SymmetricDS hub configuration from `symmetricds/sql/` |
 | `symmetricds-hub` | Replication hub; the edge node registers and pushes here (port 31415) |
-| `restart-orchestrator` | Periodically restarts SymmetricDS (workaround for long-run stalls) |
 | `grafana` | Dashboards — see [`grafana/dashboards/README.md`](grafana/dashboards/README.md) |
 | `jupyterhub` | Notebook analytics (+ Voilà) |
 | `streamlit` | Legacy metadata UI for the `perocube` schema |
